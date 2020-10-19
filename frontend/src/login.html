@@ -1,21 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html class="has-background-dark">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Hello Bulma!</title>
+    <title>HRLab Login</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
     <script src="auth.js"></script>
   </head>
   <body>
   <section class="section">
     <div class="container" style="max-width: 800px;">
+      <h1>Welcome to HRLab</h1>
       <div class="field">
-        <label class="label">Username</label>
+        <label class="label has-text-white">Username</label>
         <input class="input is-danger" type="text" placeholder="Username..." id="username">
       </div>
       <div class="field">
-        <label class="label">Password</label>
+        <label class="label has-text-white">Password</label>
         <input class="input is-danger" type="password" placeholder="Password..." id="password">
       </div>
       <button class="button is-danger is-fullwidth" onclick="login()">Login</button>
@@ -30,6 +31,10 @@
         <button class="delete" aria-label="close" onclick="closeRegisterModal()"></button>
       </header>
       <section class="modal-card-body">
+        <div class="field">
+          <label class="label">Full name</label>
+          <input class="input is-danger" type="text" placeholder="e.g. Edward Lodewijk Van Halen" id="registerFullName">
+        </div>
         <div class="field">
           <label class="label">Username</label>
           <input class="input is-danger" type="text" placeholder="Username" id="registerUsername">
@@ -53,11 +58,17 @@
       Successfully registered! Please proceed to log in.
     </div>
   </div>
-
   </body>
 </html>
 
 <script>
+  // 'enter' keypress on password text field
+  document.getElementById("password").addEventListener("keyup", event => {
+    if(event.key !== "Enter") return;
+    login();
+    event.preventDefault();
+  });
+
   function closeNotification() {
     document.getElementById('notification').style.visibility = 'hidden';
   }
@@ -68,3 +79,13 @@
     document.getElementById('registerModal').classList.remove('is-active');
   }
 </script>
+
+<style>
+  h1 {
+    font-size: 30px;
+    text-align: center;
+  }
+  body {
+    color: white;
+  }
+</style>
