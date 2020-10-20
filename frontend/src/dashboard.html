@@ -10,7 +10,7 @@
     <script src="rateChart.js" defer></script>
   </head>
   <body>
-    <nav class="navbar" role="navigation" aria-label="main navigation">
+    <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
         <a class="navbar-item" href="./dashboard.html">
           <img src="https://bulma.io/images/bulma-logo.png" width="112" height="28">
@@ -59,13 +59,13 @@
       <div style="width: 50%; height: 800px; display: inline-block;">
         <canvas id="rateChart"></canvas>
       </div>
-      <div style="display: inline-block;">
-        <iframe src="./dashboardViews/AOO.html" seamless style="height: 800px; width: 200%;" scrolling="no" id="AOOFrame"></iframe>
-        <iframe src="./dashboardViews/VOO.html" seamless style="height: 800px; width: 200%;" scrolling="no" id="VOOFrame" hidden></iframe>
-        <iframe src="./dashboardViews/AAI.html" seamless style="height: 800px; width: 200%;" scrolling="no" id="AAIFrame" hidden></iframe>
-        <iframe src="./dashboardViews/VVI.html" seamless style="height: 800px; width: 200%;" scrolling="no" id="VVIFrame" hidden></iframe>
-        <iframe src="./dashboardViews/VOOR.html" seamless style="height: 800px; width: 200%;" scrolling="no" id="VOORFrame" hidden></iframe>
-        <iframe src="./dashboardViews/DDDR.html" seamless style="height: 800px; width: 200%;" scrolling="no" id="DDDRFrame" hidden></iframe>
+      <div style="display: inline-block; width: 49%;">
+        <iframe src="./dashboardViews/AOO.html" seamless style="height: 800px; width: 100%;" scrolling="no" id="AOOFrame"></iframe>
+        <iframe src="./dashboardViews/VOO.html" seamless style="height: 800px; width: 100%;" scrolling="no" id="VOOFrame" hidden></iframe>
+        <iframe src="./dashboardViews/AAI.html" seamless style="height: 800px; width: 100%;" scrolling="no" id="AAIFrame" hidden></iframe>
+        <iframe src="./dashboardViews/VVI.html" seamless style="height: 800px; width: 100%;" scrolling="no" id="VVIFrame" hidden></iframe>
+        <iframe src="./dashboardViews/VOOR.html" seamless style="height: 800px; width: 100%;" scrolling="no" id="VOORFrame" hidden></iframe>
+        <iframe src="./dashboardViews/DDDR.html" seamless style="height: 800px; width: 100%;" scrolling="no" id="DDDRFrame" hidden></iframe>
       </div>
     </div>
   </section>
@@ -103,6 +103,7 @@
     document.getElementById('aboutModal').classList.add('is-active');
   }
   function setMode(mode) {
+    // set the active tab
     document.getElementById('AOO').classList.remove('is-active')
     document.getElementById('VOO').classList.remove('is-active')
     document.getElementById('AAI').classList.remove('is-active')
@@ -111,6 +112,7 @@
     document.getElementById('DDDR').classList.remove('is-active')
     document.getElementById(mode).classList.add('is-active');
 
+    // set the active IFrame
     document.getElementById('AOOFrame').hidden = true;
     document.getElementById('VOOFrame').hidden = true;
     document.getElementById('AAIFrame').hidden = true;
@@ -119,10 +121,5 @@
     document.getElementById('DDDRFrame').hidden = true;
     var frame = document.getElementById(mode + 'Frame');
     frame.hidden = false;
-    switch (mode) {
-      case 'AAI':
-        console.log('AAI');
-        break;
-    }
   }
 </script>

@@ -2,6 +2,7 @@
 <html>
   <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <script src="../auth.js"></script>
   </head>
   <body>
     <section class="section">
@@ -16,13 +17,38 @@
         </div>
         <div class="field">
           <label class="label">Atrial Amplitude</label>
-          <input class="input is-danger" type="text" placeholder="Atrial Amplitude..." id="atrialAmplitude
+          <input class="input is-danger" type="text" placeholder="Atrial Amplitude..." id="atrialAmplitude">
         <div class="field">
           <label class="label">Atrial Pulse Width</label>
           <input class="input is-danger" type="text" placeholder="Atrial Pulse Width..." id="atrialPulseWidth">
         </div>
-        <button class="button is-danger is-fullwidth">Save</button>
+        <button class="button is-danger is-fullwidth" onclick="saveData()">Save</button>
       </div>
     </section>
   </body>
 </html>
+
+<script>
+  getData();
+
+  function getData() {
+    // run on init, prefills textboxes with data from user's storage
+    var user = getCurrentUser();
+    user.AOO.lowerRateLimit != undefined ? document.getElementById('lowerRateLimit').value = user.AOO.lowerRateLimit : null;
+    user.AOO.upperRateLimit != undefined ? document.getElementById('upperRateLimit').value = user.AOO.upperRateLimit : null;
+    user.AOO.atrialAmplitude != undefined ? document.getElementById('atrialAmplitude').value = user.AOO.atrialAmplitude : null;
+    user.AOO.atrialPulseWidth != undefined ? document.getElementById('atrialPulseWidth').value = user.AOO.atrialPulseWidth : null;
+  }
+  function saveData() {
+
+    // get current user, edit it's properties for this specific mode
+    var user = getCurrentUser();
+    user.AOO.lowerRateLimit = document.getElementById('lowerRateLimit').value;
+    user.AOO.upperRateLimit = document.getElementById('upperRateLimit').value;
+    user.AOO.atrialAmplitude = document.getElementById('atrialAmplitude').value;
+    user.AOO.atrialPulseWidth = document.getElementById('atrialPulseWidth').value;
+
+    // save to storage
+    updateCurrentUser(user);
+  }
+</script>

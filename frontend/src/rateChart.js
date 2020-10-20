@@ -1,4 +1,3 @@
-console.log(document.getElementById('rateChart'));
 var ctx = document.getElementById('rateChart').getContext('2d');
 var myChart = new Chart(ctx, {
     type: 'line',

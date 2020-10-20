@@ -1,8 +1,8 @@
 
 function isLoggedIn() {
   // get the current user. If undefined, nobody is logged in
-  var currentUser = JSON.parse(window.localStorage.getItem('currentUser'));
-  if (currentUser.username != undefined) {
+  var currentUserIndex = JSON.parse(window.localStorage.getItem('currentUserIndex'));
+  if (currentUserIndex != null) {
     return true;
   } else {
     return false;
@@ -11,7 +11,7 @@ function isLoggedIn() {
 
 function getCurrentUser() {
   if (isLoggedIn()) {
-    var currentUser = JSON.parse(window.localStorage.getItem('currentUser'));
+    var currentUser = JSON.parse(localStorage.getItem('users'))[JSON.parse(window.localStorage.getItem('currentUserIndex'))];
     return currentUser;
   } else {
     window.location.href = './login.html';
@@ -19,12 +19,24 @@ function getCurrentUser() {
   }
 }
 
+function updateCurrentUser(newUser) {
+  var existingUsers = JSON.parse(window.localStorage.getItem('users'));
+  existingUsers[JSON.parse(localStorage.getItem('currentUserIndex'))] = newUser;
+  localStorage.setItem('users', JSON.stringify(existingUsers));
+}
+
 function register() {
   // registering a new user
   var newUser = {
     username: document.getElementById('registerUsername').value,
     password: document.getElementById('registerPassword').value,
-    fullName: document.getElementById('registerFullName').value
+    fullName: document.getElementById('registerFullName').value,
+    AOO: {},
+    VOO: {},
+    AAI: {},
+    VVI: {},
+    VOOR: {},
+    DDDR: {}
   }
   var existingUsers = JSON.parse(window.localStorage.getItem('users'));
 
@@ -57,11 +69,11 @@ function login() {
     password: document.getElementById('password').value
   }
   //loop through all users looking for a match
-  existingUsers.forEach(user => {
+  existingUsers.forEach((user, index) => {
     if (user.username == loginUser.username) {
       if(user.password == loginUser.password) {
         // log user in and proceed to dashboard
-        window.localStorage.setItem('currentUser', JSON.stringify(user));
+        window.localStorage.setItem('currentUserIndex', JSON.stringify(index));
         this.window.location.href = './dashboard.html';
       }
     }
@@ -69,6 +81,6 @@ function login() {
 }
 
 function logout() {
-  window.localStorage.setItem('currentUser', JSON.stringify({}));
+  window.localStorage.setItem('currentUserIndex', JSON.stringify(null));
   window.location.href = './login.html';
 }
