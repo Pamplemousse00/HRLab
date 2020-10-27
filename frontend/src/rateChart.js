@@ -2,26 +2,12 @@ var ctx = document.getElementById('rateChart').getContext('2d');
 var myChart = new Chart(ctx, {
     type: 'line',
     data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        labels: ['1 p.m.', '2 p.m.', '3 p.m.', '4 p.m.', '5 p.m.', '6 p.m.'],
         datasets: [{
-            label: '# of Votes',
-            data: [12, 19, 3, 5, 2, 3],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-            ],
+            label: 'Rate',
+            data: [80, 65, 65, 65, 55, 60],
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            borderColor: 'rgba(255, 99, 132, 1)',
             borderWidth: 1
         }]
     },
@@ -30,7 +16,7 @@ var myChart = new Chart(ctx, {
       maintainAspectRatio: false,
       title: {
         display: true,
-        text: 'Rate',
+        text: 'Heart Rate',
         fontSize: 30
       },
       legend: {
@@ -55,7 +41,7 @@ var myChart = new Chart(ctx, {
         yAxes: [{
           scaleLabel: {
             display: true,
-            labelString: 'eee'
+            labelString: 'Heart Rate'
           }
         }]
       }

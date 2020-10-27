@@ -2,28 +2,55 @@
 <html>
   <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <script src="../auth.js"></script>
   </head>
   <body>
     <section class="section">
       <div class="container" style="max-width: 800px;">
         <div class="field">
           <label class="label">Lower Rate Limit</label>
-          <input class="input is-danger" type="text" placeholder="Lower Rate Limit..." id="lowerRateLimit">
+          <input class="input is-danger" type="text" placeholder="Lower Rate Limit..." id="VOOlowerRateLimit">
         </div>
         <div class="field">
           <label class="label">Upper Rate Limit</label>
-          <input class="input is-danger" type="text" placeholder="Upper Rate Limit..." id="upperRateLimit">
+          <input class="input is-danger" type="text" placeholder="Upper Rate Limit..." id="VOOupperRateLimit">
         </div>
         <div class="field">
           <label class="label">Ventricular Amplitude</label>
-          <input class="input is-danger" type="text" placeholder="Ventricular Amplitude..." id="venAmplitude">
+          <input class="input is-danger" type="text" placeholder="Ventricular Amplitude..." id="VOOvenAmplitude">
         </div>
         <div class="field">
           <label class="label">Ventricular Pulse Width</label>
-          <input class="input is-danger" type="text" placeholder="Ventricular Pulse Width..." id="venPulseWidth">
+          <input class="input is-danger" type="text" placeholder="Ventricular Pulse Width..." id="VOOvenPulseWidth">
         </div>
-        <button class="button is-danger is-fullwidth">Save</button>
+        <button class="button is-danger is-fullwidth" onclick="saveData()">Save</button>
       </div>
     </section>
   </body>
 </html>
+
+<script>
+  getData();
+  console.log(getCurrentUser())
+
+  function getData() {
+    // run on init, prefills textboxes with data from user's storage
+    var user = getCurrentUser();
+    user.VOO.lowerRateLimit != undefined ? document.getElementById('VOOlowerRateLimit').value = user.VOO.lowerRateLimit : null;
+    user.VOO.upperRateLimit != undefined ? document.getElementById('VOOupperRateLimit').value = user.VOO.upperRateLimit : null;
+    user.VOO.venAmplitude != undefined ? document.getElementById('VOOvenAmplitude').value = user.VOO.venAmplitude : null;
+    user.VOO.venPulseWidth != undefined ? document.getElementById('VOOvenPulseWidth').value = user.VOO.venPulseWidth : null;
+  }
+  function saveData() {
+
+    // get current user, edit it's properties for this specific mode
+    var user = getCurrentUser();
+    user.VOO.lowerRateLimit = document.getElementById('VOOlowerRateLimit').value;
+    user.VOO.upperRateLimit = document.getElementById('VOOupperRateLimit').value;
+    user.VOO.venAmplitude = document.getElementById('VOOvenAmplitude').value;
+    user.VOO.venPulseWidth = document.getElementById('VOOvenPulseWidth').value;
+
+    // save to storage
+    updateCurrentUser(user);
+  }
+</script>

@@ -8,6 +8,7 @@
     <script src="auth.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js" defer></script>
     <script src="rateChart.js" defer></script>
+    <script src="serial.js" defer></script>
   </head>
   <body>
     <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
@@ -25,10 +26,15 @@
     
       <div id="navbarBasicExample" class="navbar-menu">
         <div class="navbar-start">
-          <a class="navbar-item">
-            Dashboard
+          
+          <a class="navbar-item" id="navbarConnection" onclick="openDeviceModal()" style="color: hsl(348, 100%, 61%)">
+            Not Connected to Device 
           </a>
-    
+
+          <a class="navbar-item" id="navbarName" onclick="openProfileModal()">
+            Not Logged in
+          </a>
+
           <a class="navbar-item" onclick="openAboutModal()">
             About
           </a>
@@ -36,10 +42,6 @@
           <a class="navbar-item" onclick="logout()">
             Logout
           </a>
-
-          <div class="navbar-item" id="navbarName">
-            Not Logged in
-          </div>
           
         </div>
       </div>
@@ -48,7 +50,7 @@
     <div class="container">
       <div class="tabs is-medium is-boxed">
         <ul>
-          <li onclick="setMode('AOO')" id="AOO" class="is-active"><a>AOO</a></li>
+          <li onclick="setMode('AOO')" id="AOO" class="is-active"><a style="color: hsl(348, 100%, 61%)">AOO</a></li>
           <li onclick="setMode('VOO')" id="VOO"><a>VOO</a></li>
           <li onclick="setMode('AAI')" id="AAI"><a>AAI</a></li>
           <li onclick="setMode('VVI')" id="VVI"><a>VVI</a></li>
@@ -87,14 +89,76 @@
       </footer>
     </div>
   </div>
+  <div class="modal" id="profileModal">
+    <div class="modal-background" onclick="closeProfileModal()"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">My Profile</p>
+        <button class="delete" aria-label="close" onclick="closeProfileModal()"></button>
+      </header>
+      <section class="modal-card-body">
+        <div class="field">
+          <label class="label">Full Name</label>
+          <input class="input is-danger" type="text" placeholder="Full Name..." id="profileFullName">
+        </div>
+        <div class="field">
+          <label class="label">Username</label>
+          <input class="input is-danger" type="text" placeholder="Username..." id="profileUsername">
+        </div>
+        <div class="field">
+          <label class="label">Password</label>
+          <input class="input is-danger" type="password" placeholder="Password..." id="profilePassword">
+        </div>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-danger" onclick="saveProfile()">Save</button>
+        <button class="button" onclick="closeProfileModal()">Cancel</button>
+      </footer>
+    </div>
+  </div>
+  <div class="modal" id="deviceModal">
+    <div class="modal-background" onclick="closeDeviceModal()"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Device Connection</p>
+        <button class="delete" aria-label="close" onclick="closeDeviceModal()"></button>
+      </header>
+      <section class="modal-card-body">
+        <button class="button is-danger" style="width: 100%" onclick="openPort()">Connect</button>
+        <div class="field">
+          <label class="label">
+            Device:
+          </label>
+        </div>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-danger" onclick="saveProfile()">Save</button>
+        <button class="button" onclick="closeDeviceModal()">Cancel</button>
+      </footer>
+    </div>
+  </div>
   </body>
 </html>
 
 <script>
-  if(getCurrentUser().username == undefined) {
-    window.location.href = './login.html';
+
+  init();
+
+  function init() {
+
+    // redirect to login page if not logged in
+    if(getCurrentUser().username == undefined) {
+      window.location.href = './login.html';
+    }
+
+    // set navigation bar as full name
+    document.getElementById('navbarName').innerHTML = getCurrentUser().fullName;
+
+    // populate the 'edit profile' modal (even though it's not visible until button is pushed)
+    document.getElementById('profileFullName').value = getCurrentUser().fullName;
+    document.getElementById('profileUsername').value = getCurrentUser().username;
+    document.getElementById('profilePassword').value = getCurrentUser().password;
   }
-  document.getElementById('navbarName').innerHTML = getCurrentUser().fullName;
 
   function closeAboutModal() {
     document.getElementById('aboutModal').classList.remove('is-active');
@@ -102,15 +166,48 @@
   function openAboutModal() {
     document.getElementById('aboutModal').classList.add('is-active');
   }
+
+  function openProfileModal() {
+    document.getElementById('profileModal').classList.add('is-active');
+  }
+  function closeProfileModal() {
+    document.getElementById('profileModal').classList.remove('is-active');
+  }
+
+  function openDeviceModal() {
+    document.getElementById('deviceModal').classList.add('is-active');
+  }
+  function closeDeviceModal() {
+    document.getElementById('deviceModal').classList.remove('is-active');
+  }
+
+  function saveProfile() {
+
+    // get the current user, change fields, save, reload
+    var user = getCurrentUser()
+    user.fullName = document.getElementById('profileFullName').value;
+    user.username = document.getElementById('profileUsername').value;
+    user.password = document.getElementById('profilePassword').value;
+    updateCurrentUser(user);
+    document.getElementById('profileModal').classList.remove('is-active');
+    window.location.reload();
+  }
   function setMode(mode) {
     // set the active tab
     document.getElementById('AOO').classList.remove('is-active')
+    document.getElementById('AOO').children[0].style.color = 'black';
     document.getElementById('VOO').classList.remove('is-active')
+    document.getElementById('VOO').children[0].style.color = 'black';
     document.getElementById('AAI').classList.remove('is-active')
+    document.getElementById('AAI').children[0].style.color = 'black';
     document.getElementById('VVI').classList.remove('is-active')
+    document.getElementById('VVI').children[0].style.color = 'black';
     document.getElementById('VOOR').classList.remove('is-active')
+    document.getElementById('VOOR').children[0].style.color = 'black';
     document.getElementById('DDDR').classList.remove('is-active')
+    document.getElementById('DDDR').children[0].style.color = 'black';
     document.getElementById(mode).classList.add('is-active');
+    document.getElementById(mode).children[0].style.color = 'hsl(348, 100%, 61%)';
 
     // set the active IFrame
     document.getElementById('AOOFrame').hidden = true;
