@@ -2,52 +2,86 @@
 <html>
   <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <script src="../auth.js"></script>
   </head>
   <body>
     <section class="section">
       <div class="container" style="max-width: 800px;">
         <div class="field">
           <label class="label">Lower Rate Limit</label>
-          <input class="input is-danger" type="text" placeholder="Lower Rate Limit..." id="lowerRateLimit">
+          <input class="input is-danger" type="text" placeholder="Lower Rate Limit..." id="AAIlowerRateLimit">
         </div>
         <div class="field">
           <label class="label">Upper Rate Limit</label>
-          <input class="input is-danger" type="text" placeholder="Upper Rate Limit..." id="upperRateLimit">
+          <input class="input is-danger" type="text" placeholder="Upper Rate Limit..." id="AAIupperRateLimit">
         </div>
         <div class="field">
           <label class="label">Atrial Amplitude</label>
-          <input class="input is-danger" type="text" placeholder="Atrial Amplitude..." id="atrialAmplitude">
+          <input class="input is-danger" type="text" placeholder="Atrial Amplitude..." id="AAIatrialAmplitude">
         <div class="field">
           <label class="label">Atrial Pulse Width</label>
-          <input class="input is-danger" type="text" placeholder="Atrial Pulse Width..." id="atrialPulseWidth">
+          <input class="input is-danger" type="text" placeholder="Atrial Pulse Width..." id="AAIatrialPulseWidth">
         </div>
         <div class="field">
           <label class="label">ARP</label>
-          <input class="input is-danger" type="text" placeholder="ARP..." id="ARP">
+          <input class="input is-danger" type="text" placeholder="ARP..." id="AAIARP">
         </div>
         <div class="field">
           <label class="checkbox">
-            <input type="checkbox" class="is-danger" onclick="checkPacing()">
+            <input type="checkbox" class="is-danger" onclick="checkPacing()" id="AAIhysteresisPacingRateBox">
             Hysteresis Pacing
           </label>
         </div>
-        <div class="field" hidden id="hysteresisPacingRateField">
+        <div class="field" hidden id="AAIhysteresisPacingRateField">
           <label class="label">Hysteresis Pacing Rate</label>
-          <input class="input is-danger" type="text" placeholder="Hysteresis Pacing Rate..." id="hysteresisPacingRate">
+          <input class="input is-danger" type="text" placeholder="Hysteresis Pacing Rate..." id="AAIhysteresisPacingRate">
         </div>
-        <button class="button is-danger is-fullwidth">Save</button>
+        <button class="button is-danger is-fullwidth" onclick="saveData()">Save</button>
       </div>
     </section>
   </body>
 </html>
 
 <script>
+  getData();
+
   function checkPacing() {
-    var field = document.getElementById('hysteresisPacingRateField');
+    var field = document.getElementById('AAIhysteresisPacingRateField');
     if (field.hidden == false) {
       field.hidden = true;
     } else {
       field.hidden = false;
     }
+  }
+
+
+  function getData() {
+    // run on init, prefills textboxes with data from user's storage
+    var user = getCurrentUser();
+    user.AAI.lowerRateLimit != undefined ? document.getElementById('AAIlowerRateLimit').value = user.AAI.lowerRateLimit : null;
+    user.AAI.upperRateLimit != undefined ? document.getElementById('AAIupperRateLimit').value = user.AAI.upperRateLimit : null;
+    user.AAI.atrialAmplitude != undefined ? document.getElementById('AAIatrialAmplitude').value = user.AAI.atrialAmplitude : null;
+    user.AAI.atrialPulseWidth != undefined ? document.getElementById('AAIatrialPulseWidth').value = user.AAI.atrialPulseWidth : null;
+    user.AAI.arp != undefined ? document.getElementById('AAIARP').value = user.AAI.arp : null;
+    user.AAI.hysteresisPacingBox != undefined ? document.getElementById('AAIhysteresisPacingRateBox').checked = user.AAI.hysteresisPacingBox : null;
+    if (user.AAI.hysteresisPacingBox == true) {
+      document.getElementById('AAIhysteresisPacingRateField').hidden = false;
+    }
+    user.AAI.hysteresisPacing != undefined ? document.getElementById('AAIhysteresisPacingRate').value = user.AAI.hysteresisPacing : null;
+  }
+  function saveData() {
+
+    // get current user, edit it's properties for this specific mode
+    var user = getCurrentUser();
+    user.AAI.lowerRateLimit = document.getElementById('AAIlowerRateLimit').value;
+    user.AAI.upperRateLimit = document.getElementById('AAIupperRateLimit').value;
+    user.AAI.atrialAmplitude = document.getElementById('AAIatrialAmplitude').value;
+    user.AAI.atrialPulseWidth = document.getElementById('AAIatrialPulseWidth').value;
+    user.AAI.hysteresisPacingBox = document.getElementById('AAIhysteresisPacingRateBox').checked;
+    user.AAI.hysteresisPacing = document.getElementById('AAIhysteresisPacingRate').value;
+    user.AAI.arp = document.getElementById('AAIARP').value;
+
+    // save to storage
+    updateCurrentUser(user);
   }
 </script>
