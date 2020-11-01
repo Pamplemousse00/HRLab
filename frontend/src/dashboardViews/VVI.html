@@ -37,7 +37,7 @@
           <label class="label">Hysteresis Pacing Rate</label>
           <input class="input is-danger" type="text" placeholder="Hysteresis Pacing Rate..." id="VVIhysteresisPacingRate">
         </div>
-        <button class="button is-danger is-fullwidth" onclick="saveData()">Save</button>
+        <button class="button is-danger is-fullwidth" onclick="verifyForm()">Save</button>
       </div>
     </section>
   </body>
@@ -45,6 +45,34 @@
 
 <script>
   getData();
+
+  function verifyForm() {
+
+    var flag = false;
+
+    if (document.getElementById('VVIlowerRateLimit').value >= 30 && document.getElementById('VVIlowerRateLimit').value <= 175) {
+      if (document.getElementById('VVIupperRateLimit').value >= 50 && document.getElementById('VVIupperRateLimit').value <= 175) {
+        if (document.getElementById('VVIvenAmplitude').value >= 0.5 && document.getElementById('VVIvenAmplitude').value <= 5) {
+          if (document.getElementById('VVIvenPulseWidth').value >= 0.5 && document.getElementById('VVIvenPulseWidth').value <= 5) {
+            if (document.getElementById('VVIhysteresisPacingRateBox').checked) {
+              if (document.getElementById('VVIhysteresisPacingRate').value >= 30 && document.getElementById('VVIhysteresisPacingRate').value <= 175) {
+                flag = true
+              }
+            }
+            if (document.getElementById('VVIVRP').value >= 150 && document.getElementById('VVIVRP').value <= 500) {
+              flag = true;
+            }
+          }
+        }
+      }
+    }
+
+    if (flag) {
+      saveData()
+    } else {
+      alert('Values are not acceptable');
+    }
+  }
 
   function checkPacing() {
     var field = document.getElementById('VVIhysteresisPacingRateField');

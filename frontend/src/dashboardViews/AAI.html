@@ -36,7 +36,7 @@
           <label class="label">Hysteresis Pacing Rate</label>
           <input class="input is-danger" type="text" placeholder="Hysteresis Pacing Rate..." id="AAIhysteresisPacingRate">
         </div>
-        <button class="button is-danger is-fullwidth" onclick="saveData()">Save</button>
+        <button class="button is-danger is-fullwidth" onclick="verifyForm()">Save</button>
       </div>
     </section>
   </body>
@@ -51,6 +51,34 @@
       field.hidden = true;
     } else {
       field.hidden = false;
+    }
+  }
+
+  function verifyForm() {
+
+    var flag = false;
+
+    if (document.getElementById('AAIlowerRateLimit').value >= 30 && document.getElementById('AAIlowerRateLimit').value <= 175) {
+      if (document.getElementById('AAIupperRateLimit').value >= 50 && document.getElementById('AAIupperRateLimit').value <= 175) {
+        if (document.getElementById('AAIatrialAmplitude').value >= 0.5 && document.getElementById('AAIatrialAmplitude').value <= 5) {
+          if (document.getElementById('AAIatrialPulseWidth').value >= 0.5 && document.getElementById('AAIatrialPulseWidth').value <= 5) {
+            if (document.getElementById('AAIhysteresisPacingRateBox').checked) {
+              if (document.getElementById('AAIhysteresisPacingRate').value >= 30 && document.getElementById('AAIhysteresisPacingRate').value <= 175) {
+                flag = true
+              }
+            }
+            if (document.getElementById('AAIARP').value >= 150 && document.getElementById('AAIARP').value <= 500) {
+              flag = true;
+            }
+          }
+        }
+      }
+    }
+
+    if (flag) {
+      saveData()
+    } else {
+      alert('Values are not acceptable');
     }
   }
 
