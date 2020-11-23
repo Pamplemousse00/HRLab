@@ -32,24 +32,33 @@
       </b-field>
     </section>
     <footer class="modal-card-foot" style="display: flex;justify-content: flex-end">
-      <button class="button" type="button" @click="$parent.close()">Close</button>
-      <button class="button is-primary" type="button" @click="createUser">Submit</button>
+      <b-button class="button" type="button" v-on:click="$parent.close()">Close</b-button>
+      <b-button class="button is-primary" type="button" v-on:click="createUser">Submit</b-button>
     </footer>
   </div>  
 </template>
 
 <script>
+import AuthState from '@/store/auth'
+import { getModule } from 'vuex-module-decorators'
+
 export default {
   data() {
     return {
       fullName: '',
       username: '',
-      password: ''
+      password: '',
+      authModule: undefined
     }
   },
-  method: {
+  mounted() {
+    this.authModule = getModule(AuthState, this.$store)
+  },
+  methods: {
     createUser() {
-
+      if(this.authModule.register(this.username, this.password, this.fullName)) {
+        this.$parent.close()
+      }
     }
   }
 }

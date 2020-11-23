@@ -12,6 +12,8 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~bulma/sass/utilities/functions";
+$primary: hsl(348, 100%, 61%);
 @import '../node_modules/bulma/bulma.sass';
 
 html, body {

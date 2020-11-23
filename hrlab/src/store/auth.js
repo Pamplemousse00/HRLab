@@ -37,13 +37,13 @@ export default class AuthState extends VuexModule {
     localStorage.setItem('users', JSON.stringify(existingUsers));
   }
 
-  @Action
-  register() {
+  @Action({ rawError: true })
+  register(username, password, fullName) {
     // registering a new user
     var newUser = {
-      username: document.getElementById('registerUsername').value,
-      password: document.getElementById('registerPassword').value,
-      fullName: document.getElementById('registerFullName').value,
+      username: username,
+      password: password,
+      fullName: fullName,
       AOO: {},
       VOO: {},
       AAI: {},
@@ -65,22 +65,17 @@ export default class AuthState extends VuexModule {
     // append new user to storage
     existingUsers.push(newUser);
     window.localStorage.setItem('users', JSON.stringify(existingUsers));
-  
-    // close modal and show success notification
-    document.getElementById('registerModal').classList.remove('is-active');
-    document.getElementById('notification').style.visibility = 'visible';
-    setTimeout(function() {
-      document.getElementById('notification').style.visibility = 'hidden';
-    }, 2000);
+
+    return true
   }
 
-  @Action
-  login() {
+  @Action({ rawError: true })
+  login(username, password) {
     // get all users
     var existingUsers = JSON.parse(window.localStorage.getItem('users'));
     var loginUser = {
-      username: document.getElementById('username').value,
-      password: document.getElementById('password').value
+      username: username,
+      password: password
     }
     //loop through all users looking for a match
     existingUsers.forEach((user, index) => {
@@ -88,10 +83,11 @@ export default class AuthState extends VuexModule {
         if(user.password == loginUser.password) {
           // log user in and proceed to dashboard
           window.localStorage.setItem('currentUserIndex', JSON.stringify(index));
-          this.window.location.href = './dashboard.html';
+          return true
         }
       }
     });
+    return false
   }
 
   @Action
