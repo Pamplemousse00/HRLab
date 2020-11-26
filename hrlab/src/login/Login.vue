@@ -60,7 +60,7 @@ export default {
       document.getElementById('registerModal').classList.remove('is-active');
     },
     login() {
-      if(this.authModule.login(this.username, this.password) == true) {
+      if(this.authModule.login({ username: this.username, password: this.password })) {
         this.$router.push('/dashboard')
       } else {
         alert('user not found')

@@ -17,12 +17,7 @@
         <canvas id="rateChart"></canvas>
       </div>
       <div style="display: inline-block; width: 49%;">
-        <iframe src="./dashboardViews/AOO.html" seamless style="height: 800px; width: 100%;" scrolling="no" id="AOOFrame"></iframe>
-        <iframe src="./dashboardViews/VOO.html" seamless style="height: 800px; width: 100%;" scrolling="no" id="VOOFrame" hidden></iframe>
-        <iframe src="./dashboardViews/AAI.html" seamless style="height: 800px; width: 100%;" scrolling="no" id="AAIFrame" hidden></iframe>
-        <iframe src="./dashboardViews/VVI.html" seamless style="height: 800px; width: 100%;" scrolling="no" id="VVIFrame" hidden></iframe>
-        <iframe src="./dashboardViews/VOOR.html" seamless style="height: 800px; width: 100%;" scrolling="no" id="VOORFrame" hidden></iframe>
-        <iframe src="./dashboardViews/DDDR.html" seamless style="height: 800px; width: 100%;" scrolling="no" id="DDDRFrame" hidden></iframe>
+        <AAI></AAI>
       </div>
     </div>
   </section>
@@ -103,6 +98,12 @@
 </template>
 
 <script>
+import AAI from '@/dashboard/dashboardViews/AAI'
+import AOO from '@/dashboard/dashboardViews/AOO'
+import DDDR from '@/dashboard/dashboardViews/DDDR'
+import VOO from '@/dashboard/dashboardViews/VOO'
+import VOOR from '@/dashboard/dashboardViews/VOOR'
+import VVI from '@/dashboard/dashboardViews/VVI'
 import Navbar from '@/dashboard/Navbar'
 export default {
   data() {
@@ -114,7 +115,8 @@ export default {
 
   },
   components: {
-    Navbar
+    Navbar,
+    AAI,
   }
 }
 </script>

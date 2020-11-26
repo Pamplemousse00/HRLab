@@ -6,6 +6,7 @@
     <section class="modal-card-body">
       <b-field label="Full Name">
         <b-input
+          class="is-danger"
           type="text"
           v-model="fullName"
           placeholder="e.g. Edward Lodewijk Van Halen"
@@ -15,6 +16,7 @@
 
       <b-field label="Username">
         <b-input
+          class="is-danger"
           type="text"
           v-model="username"
           placeholder="Username..."
@@ -24,6 +26,7 @@
 
       <b-field label="Password">
         <b-input
+          class="is-danger"
           type="password"
           v-model="password"
           placeholder="Password..."
@@ -56,7 +59,7 @@ export default {
   },
   methods: {
     createUser() {
-      if(this.authModule.register(this.username, this.password, this.fullName)) {
+      if(this.authModule.register({ username: this.username, password: this.password, fullName: this.fullName })) {
         this.$parent.close()
       }
     }

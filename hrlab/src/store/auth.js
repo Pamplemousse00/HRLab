@@ -8,7 +8,7 @@ import {
 })
 export default class AuthState extends VuexModule {
 
-  @Action  
+  @Action({ rawError: true })
   isLoggedIn() {
     // get the current user. If undefined, nobody is logged in
     var currentUserIndex = JSON.parse(window.localStorage.getItem('currentUserIndex'));
@@ -19,9 +19,9 @@ export default class AuthState extends VuexModule {
     }
   }
 
-  @Action
+  @Action({ rawError: true })
   getCurrentUser() {
-    if (isLoggedIn()) {
+    if (this.isLoggedIn()) {
       var currentUser = JSON.parse(localStorage.getItem('users'))[JSON.parse(window.localStorage.getItem('currentUserIndex'))];
       return currentUser;
     } else {
@@ -30,7 +30,7 @@ export default class AuthState extends VuexModule {
     }
   }
 
-  @Action
+  @Action({ rawError: true })
   updateCurrentUser(newUser) {
     var existingUsers = JSON.parse(window.localStorage.getItem('users'));
     existingUsers[JSON.parse(localStorage.getItem('currentUserIndex'))] = newUser;
@@ -38,12 +38,12 @@ export default class AuthState extends VuexModule {
   }
 
   @Action({ rawError: true })
-  register(username, password, fullName) {
+  register(registerObject) {
     // registering a new user
     var newUser = {
-      username: username,
-      password: password,
-      fullName: fullName,
+      username: registerObject.username,
+      password: registerObject.password,
+      fullName: registerObject.fullName,
       AOO: {},
       VOO: {},
       AAI: {},
@@ -63,6 +63,7 @@ export default class AuthState extends VuexModule {
       return;
     }
     // append new user to storage
+    console.log(newUser);
     existingUsers.push(newUser);
     window.localStorage.setItem('users', JSON.stringify(existingUsers));
 
@@ -70,24 +71,22 @@ export default class AuthState extends VuexModule {
   }
 
   @Action({ rawError: true })
-  login(username, password) {
+  login(loginObject) {
     // get all users
     var existingUsers = JSON.parse(window.localStorage.getItem('users'));
-    var loginUser = {
-      username: username,
-      password: password
-    }
     //loop through all users looking for a match
+    let flag = false;
     existingUsers.forEach((user, index) => {
-      if (user.username == loginUser.username) {
-        if(user.password == loginUser.password) {
+      if (user.username == loginObject.username) {
+        if(user.password == loginObject.password) {
           // log user in and proceed to dashboard
           window.localStorage.setItem('currentUserIndex', JSON.stringify(index));
-          return true
+          flag = true;
         }
       }
     });
-    return false
+    console.log(flag);
+    return flag;
   }
 
   @Action
