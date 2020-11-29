@@ -1,11 +1,14 @@
 <template>
   <div>
     <section class="section">
-        <b-field label="Lower Rate Limit" type="is-danger">
-          <b-input type="number" placeholder="Lower Rate Limit..." v-model="lowerRateLimit" min="30" max="175"></b-input>
+        <b-field label="Pulse Rate" type="is-danger">
+          <b-input type="number" placeholder="Pulse Rate..." v-model="pulseRate" min="30" max="175"></b-input>
         </b-field>
-        <b-field label="Upper Rate Limit" type="is-danger">
-          <b-input type="number" placeholder="Upper Rate Limit..." v-model="upperRateLimit" min="50" max="175"></b-input>
+        <b-field label="Ventricular Amplitude" type="is-danger">
+          <b-input type="number" placeholder="Ventricular Amplitude..." v-model="ventricularAmplitude" min="0.5" max="5" step="any"></b-input>
+        </b-field>
+        <b-field label="Ventricular Pulse Width" type="is-danger">
+          <b-input type="number" placeholder="Ventricular Pulse Width..." v-model="ventricularPulseWidth" min="0.5" max="5" step="any"></b-input>
         </b-field>
         <b-field label="Atrial Amplitude" type="is-danger">
           <b-input type="number" placeholder="Atrial Amplitude..." v-model="atrialAmplitude" min="0.5" max="5" step="any"></b-input>
@@ -13,8 +16,8 @@
         <b-field label="Atrial Pulse Width" type="is-danger">
           <b-input type="number" placeholder="Atrial Pulse Width..." v-model="atrialPulseWidth" min="0.5" max="5" step="any"></b-input>
         </b-field>
-        <b-field label="ARP" type="is-danger">
-          <b-input type="number" placeholder="ARP..." v-model="arp" min="150" max="500"></b-input>
+        <b-field label="AV Delay" type="is-danger">
+          <b-input type="number" placeholder="AV Delay..." v-model="AVDelay" min="20" max="300"></b-input>
         </b-field>
         <div class="field">
           <b-checkbox v-model="showHysteresisField" type="is-danger">
@@ -39,12 +42,13 @@ export default {
     return {
       authModule: undefined,
       showHysteresisField: false,
-      lowerRateLimit: undefined,
-      upperRateLimit: undefined,
+      ventricularAmplitude: undefined,
+      ventricularPulseWidth: undefined,
       atrialAmplitude: undefined,
       atrialPulseWidth: undefined,
-      arp: undefined,
-      hysteresisPacingRate: undefined
+      hysteresisPacingRate: undefined,
+      pulseRate: undefined,
+      AVDelay: undefined
     }
   },
   mounted() {
@@ -56,23 +60,23 @@ export default {
       // run on init, prefills textboxes with data from user's storage
       var user = await this.authModule.getCurrentUser();
       console.log(user);
-      user.AAI.lowerRateLimit != undefined ? this.lowerRateLimit = user.AAI.lowerRateLimit : null;
-      user.AAI.upperRateLimit != undefined ? this.upperRateLimit = user.AAI.upperRateLimit : null;
-      user.AAI.atrialAmplitude != undefined ? this.atrialAmplitude = user.AAI.atrialAmplitude : null;
-      user.AAI.atrialPulseWidth != undefined ? this.atrialPulseWidth = user.AAI.atrialPulseWidth : null;
-      user.AAI.arp != undefined ? this.arp = user.AAI.arp : null;
-      user.AAI.showHysteresisField != undefined ? this.showHysteresisField = user.AAI.showHysteresisField : null;
-      user.AAI.hysteresisPacingRate != undefined ? this.hysteresisPacingRate = user.AAI.hysteresisPacingRate : null;
+      user.DOO.atrialAmplitude != undefined ? this.atrialAmplitude = user.DOO.atrialAmplitude : null;
+      user.DOO.atrialPulseWidth != undefined ? this.atrialPulseWidth = user.DOO.atrialPulseWidth : null;
+      user.DOO.ventricularAmplitude != undefined ? this.ventricularAmplitude = user.DOO.ventricularAmplitude : null;
+      user.DOO.ventricularPulseWidth != undefined ? this.ventricularPulseWidth = user.DOO.ventricularPulseWidth : null;
+      user.DOO.showHysteresisField != undefined ? this.showHysteresisField = user.DOO.showHysteresisField : null;
+      user.DOO.hysteresisPacingRate != undefined ? this.hysteresisPacingRate = user.DOO.hysteresisPacingRate : null;
     },
     async saveData() {
       // get current user, edit it's properties for this specific mode
       var user = await this.authModule.getCurrentUser();
-      user.AAI = {
-        lowerRateLimit: this.lowerRateLimit,
-        upperRateLimit: this.upperRateLimit,
+      user.DOO = {
+        pulseRate: this.pulseRate,
+        ventricularPulseWidth: this.ventricularPulseWidth,
+        ventricularAmplitude: this.ventricularAmplitude,
         atrialAmplitude: this.atrialAmplitude,
         atrialPulseWidth: this.atrialPulseWidth,
-        arp: this.arp,
+        AVDelay: this.AVDelay,
         showHysteresisField: this.showHysteresisField,
         hysteresisPacingRate: this.hysteresisPacingRate
       }
