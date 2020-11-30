@@ -8,6 +8,50 @@ import {
 })
 export default class AuthState extends VuexModule {
 
+  path = require('path')
+  
+  @Action
+  getFS() {
+    const fs = require('fs');
+    return fs;
+  }
+
+  @Action({ rawError: true })
+  async getItem(itemName) {
+    let returnData = {};
+    await this.getFS().readFile(`${this.path}/HRLabData/auth.txt`, 'utf8' , (err, data) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      console.log(data);
+      jsonData = JSON.parse(data);
+      returnData = jsonData[itemName];
+    });
+    return returnData;
+  }
+
+  @Action({ rawError: true })
+  async setItem(itemName, item) {
+    await fs.readFile(`${this.path}/HRLabData/auth.txt`, 'utf8' , (err, data) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      console.log(data);
+      jsonData = JSON.parse(data);
+      jsonData[itemName] = item;
+      fs.writeFile(`${this.path}/HRLabData/auth.txt`, JSON.stringify(jsonData), (err) => {
+        if (err) {
+          console.log(err);
+          return;
+        }
+        console.log('The file has been saved!');
+      });      
+    });
+    return true;
+  }
+
   @Action({ rawError: true })
   isLoggedIn() {
     // get the current user. If undefined, nobody is logged in
@@ -89,7 +133,7 @@ export default class AuthState extends VuexModule {
     return flag;
   }
 
-  @Action
+  @Action({ rawError: true })
   logout() {
     window.localStorage.setItem('currentUserIndex', JSON.stringify(null));
     window.location.href = './login.html';
