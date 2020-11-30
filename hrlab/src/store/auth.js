@@ -48,8 +48,7 @@ export default class AuthState extends VuexModule {
       VOO: {},
       AAI: {},
       VVI: {},
-      VOOR: {},
-      DDDR: {}
+      DOO: {}
     }
     var existingUsers = JSON.parse(window.localStorage.getItem('users'));
   
@@ -74,6 +73,7 @@ export default class AuthState extends VuexModule {
   login(loginObject) {
     // get all users
     var existingUsers = JSON.parse(window.localStorage.getItem('users'));
+    console.log(existingUsers);
     //loop through all users looking for a match
     let flag = false;
     existingUsers.forEach((user, index) => {
