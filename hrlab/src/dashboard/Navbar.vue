@@ -57,7 +57,7 @@ export default {
   async mounted() {
     this.authModule = getModule(AuthState, this.$store);
     this.serialModule = getModule(SerialState, this.$store);
-    this.connectedDevice = await this.serialModule.getConnectedDevice();
+    // this.connectedDevice = await this.serialModule.getConnectedDevice();
     this.user = await this.authModule.getCurrentUser();
   },
   methods: {

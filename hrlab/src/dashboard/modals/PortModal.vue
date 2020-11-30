@@ -33,14 +33,15 @@ import { getModule } from 'vuex-module-decorators'
 export default {
   data() {
     return {
-      authModule: undefined,
+      serialModule: undefined,
       tableData: [
         { index: 0, id: 'lsakdjfh', connected: true }
       ]
     }
   },
   async mounted() {
-    this.authModule = getModule(SerialState, this.$store);
+    this.serialModule = getModule(SerialState, this.$store);
+    this.serialModule.listPorts().then(x => console.log(x))
   },
   methods: {
   }
