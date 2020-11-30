@@ -11,10 +11,10 @@
           <b-input type="number" placeholder="Ventricular Pulse Width..." v-model="ventricularPulseWidth" min="0.5" max="5" step="any"></b-input>
         </b-field>
         <b-field label="Atrial Amplitude" type="is-danger">
-          <b-input type="number" placeholder="Atrial Amplitude..." v-model="atrialAmplitude" min="0.5" max="5" step="any"></b-input>
+          <b-input type="number" placeholder="Atrial Amplitude..." v-model="atrialAmplitude" min="0.5" max="5" step="0.1"></b-input>
         </b-field>
         <b-field label="Atrial Pulse Width" type="is-danger">
-          <b-input type="number" placeholder="Atrial Pulse Width..." v-model="atrialPulseWidth" min="0.5" max="5" step="any"></b-input>
+          <b-input type="number" placeholder="Atrial Pulse Width..." v-model="atrialPulseWidth" min="0.5" max="5" step="0.1"></b-input>
         </b-field>
         <b-field label="AV Delay" type="is-danger">
           <b-input type="number" placeholder="AV Delay..." v-model="AVDelay" min="20" max="300"></b-input>

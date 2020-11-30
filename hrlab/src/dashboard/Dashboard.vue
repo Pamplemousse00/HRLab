@@ -3,7 +3,7 @@
     <Navbar />
   <body style="margin-top: 30px">
     <section class="columns">
-      <div class="column" :style="'height: ' + chartHeight">
+      <div class="column">
         <line-chart :chart-data="chartData" :options="chartOptions"></line-chart>
       </div>
       <div class="column">
@@ -68,12 +68,6 @@ export default {
       }
     }
   },
-  methods: {
-    selectMode(mode) {
-      console.log(mode);
-      this.selectedMode = mode;
-    }
-  },
   computed: {
     chartData: function() {
       return {
@@ -96,9 +90,6 @@ export default {
         ]
       };
     },
-    chartHeight: function() {
-      return window.innerHeight.toString();
-    }
   },
   components: {
     Navbar,

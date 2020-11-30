@@ -50,15 +50,6 @@ export default {
     this.authModule = getModule(AuthState, this.$store)
   },
   methods: {
-    closeNotification() {
-      document.getElementById('notification').style.visibility = 'hidden';
-    },
-    openRegisterModal() {
-      document.getElementById('registerModal').classList.add('is-active');
-    },
-    closeRegisterModal() {
-      document.getElementById('registerModal').classList.remove('is-active');
-    },
     login() {
       if(this.authModule.login({ username: this.username, password: this.password })) {
         this.$router.push('/dashboard')

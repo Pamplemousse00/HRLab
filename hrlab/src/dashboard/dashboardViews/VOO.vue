@@ -8,10 +8,10 @@
           <b-input type="number" placeholder="Upper Rate Limit..." v-model="upperRateLimit" min="50" max="175"></b-input>
         </b-field>
         <b-field label="Ventricular Amplitude" type="is-danger">
-          <b-input type="number" placeholder="Ventricular Amplitude..." v-model="ventricularAmplitude" min="0.5" max="5" step="any"></b-input>
+          <b-input type="number" placeholder="Ventricular Amplitude..." v-model="ventricularAmplitude" min="0.5" max="5" step="0.1"></b-input>
         </b-field>
         <b-field label="Ventricular Pulse Width" type="is-danger">
-          <b-input type="number" placeholder="Ventricular Pulse Width..." v-model="ventricularPulseWidth" min="0.5" max="5" step="any"></b-input>
+          <b-input type="number" placeholder="Ventricular Pulse Width..." v-model="ventricularPulseWidth" min="0.5" max="5" step="0.1"></b-input>
         </b-field>
         <div class="field">
           <b-checkbox v-model="showRateAdaptation" type="is-danger">
