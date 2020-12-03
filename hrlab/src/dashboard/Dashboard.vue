@@ -5,6 +5,8 @@
     <section class="columns">
       <div class="column">
         <line-chart :chart-data="chartData" :options="chartOptions"></line-chart>
+        <b-button v-if="true" type="is-danger" expanded>Start Data Collection</b-button>
+        <b-button v-else type="is-success" expanded>Collecting Data...</b-button>
       </div>
       <div class="column">
         <b-tabs type="is-boxed" size="is-medium">

@@ -35,7 +35,7 @@
             <b-input type="number" placeholder="Response Factor..." v-model="responseFactor" min="1" max="16" step="1"></b-input>
           </b-field>
         </div>
-        <button class="button is-danger is-fullwidth" v-on:click="saveData()">Save</button>
+        <button class="button is-danger is-fullwidth" v-on:click="saveData()">{{ (serialModule.currentMode == 0) ? "Save" : "Save & Send" }}</button>
     </section>
   </div>
 </template>
@@ -43,13 +43,15 @@
 <script>
 
 import AuthState from '@/store/auth'
+import SerialState from '@/store/serial'
 import { getModule } from 'vuex-module-decorators'
 
 export default {
   data() {
     return {
       authModule: undefined,
-      showHysteresisField: false,
+      serialModule: {},
+
       lowerRateLimit: undefined,
       upperRateLimit: undefined,
       atrialAmplitude: undefined,
@@ -64,6 +66,7 @@ export default {
   },
   mounted() {
     this.authModule = getModule(AuthState, this.$store);
+    this.serialModule = getModule(SerialState, this.$store);
     this.getData();
   },
   methods: {
@@ -99,6 +102,16 @@ export default {
       }
       // save to storage
       this.authModule.updateCurrentUser(user);
+
+      if(this.showRateAdaptation) {
+
+      } else {
+        this.serialModule.startAOO({
+          p_pulse_rate: parseInt(this.lowerRateLimit),
+          p_atrial_width: parseInt(this.atrialPulseWidth),
+          p_atrial_amplitude: Math.round(parseFloat(this.atrialAmplitude) / 0.1)
+        });
+      }
     }
   }
 }

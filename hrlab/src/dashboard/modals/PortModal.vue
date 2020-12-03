@@ -4,21 +4,23 @@
       <p class="modal-card-title">Connect To Device</p>
     </header>
     <section class="modal-card-body">
-      <b-table
-        :data="tableData">
-        <b-table-column field="index" label="Device #" v-slot="props">
-          {{ props.row.index }}
-        </b-table-column>
-
-        <b-table-column field="id" label="ID" v-slot="props">
-          {{ props.row.id }}
+      <b-table :data="tableData" v-if="serialModule.currentMode == 0">
+        <b-table-column label="Path" v-slot="props">
+          {{ props.row }}
         </b-table-column>
 
         <b-table-column v-slot="props">
-          <b-button type="is-danger" v-on:click="connectToDevice(props.row.id)" v-if="!props.row.connected">Connect</b-button>
-          <b-button type="is-success" v-on:click="connectToDevice(props.row.id)" v-else>Connected</b-button>
+          <b-button type="is-danger" v-on:click="serialModule.connect(props.row)">Connect</b-button>
         </b-table-column>
       </b-table>
+      <div class="columns" v-if="serialModule.currentMode != 0">
+        <div class="column">
+          <p>Connected</p>
+        </div>
+        <div class="column">
+          <b-button type="is-danger" v-on:click="serialModule.disconnect()">Disconnect</b-button>
+        </div>
+      </div>
     </section>
     <footer class="modal-card-foot" style="display: flex;justify-content: flex-end">
       <b-button class="button" type="button" v-on:click="$parent.close()">Close</b-button>
@@ -33,15 +35,13 @@ import { getModule } from 'vuex-module-decorators'
 export default {
   data() {
     return {
-      serialModule: undefined,
-      tableData: [
-        { index: 0, id: 'lsakdjfh', connected: true }
-      ]
+      serialModule: {},
+      tableData: []
     }
   },
   async mounted() {
     this.serialModule = getModule(SerialState, this.$store);
-    this.serialModule.listPorts().then(x => console.log(x))
+    this.serialModule.listPorts().then(x => this.tableData = x);
   },
   methods: {
   }

@@ -8,8 +8,8 @@
       </template>
       <template slot="start">
         <b-navbar-item v-on:click="showPortModal = true">
-          <div v-if="connectedDevice == undefined" style="color: #ff3860">Not Connected To Device</div>
-          <div v-else style="color: #48c774">Connected to {{ connectedDevice }}</div>
+          <div v-if="serialModule.currentMode == 0" style="color: #ff3860">Not Connected</div>
+          <div v-else style="color: #48c774">Connected: {{ currentModeName }} Mode</div>
         </b-navbar-item>
         <b-navbar-item v-on:click="showProfileModal = true">
           {{ user.fullName }}
@@ -49,16 +49,40 @@ export default {
       showAboutModal: false,
       showProfileModal: false,
       authModule: undefined,
-      serialModule: undefined,
+      serialModule: {},
       user: {},
-      connectedDevice: undefined
     }
   },
   async mounted() {
     this.authModule = getModule(AuthState, this.$store);
     this.serialModule = getModule(SerialState, this.$store);
-    // this.connectedDevice = await this.serialModule.getConnectedDevice();
     this.user = await this.authModule.getCurrentUser();
+  },
+  computed: {
+    currentModeName () {
+      const ModeNames = {
+        1: "AOO",
+        2: "AOOR",
+        3: "VOO",
+        4: "VOOR",
+        5: "AAI",
+        6: "AAIH",
+        7: "AAIR",
+        8: "AAIHR",
+        9: "VVI",
+        10: "VVIH",
+        11: "VVIR",
+        12: "VVIHR",
+        13: "DOO",
+        14: "DOOR"
+      }
+
+      if(this.serialModule.currentMode in ModeNames) {
+        return ModeNames[this.serialModule.currentMode];
+      } else {
+        return "???";
+      }
+    }
   },
   methods: {
     logout() {
