@@ -2,24 +2,20 @@ import {
   Module, VuexModule, Mutation, Action,
 } from 'vuex-module-decorators';
 
+import fs from 'fs';
+
+const path = require('electron').remote.app.getAppPath();
+
 @Module({
   name: 'auth',
   namespaced: true,
 })
 export default class AuthState extends VuexModule {
 
-  path = require('path')
-  
-  @Action
-  getFS() {
-    const fs = require('fs');
-    return fs;
-  }
-
   @Action({ rawError: true })
   async getItem(itemName) {
     let returnData = {};
-    await this.getFS().readFile(`${this.path}/HRLabData/auth.txt`, 'utf8' , (err, data) => {
+    await fs.readFile(`${path}/HRLabData/auth.txt`, 'utf8' , (err, data) => {
       if (err) {
         console.log(err);
         return;
@@ -33,7 +29,7 @@ export default class AuthState extends VuexModule {
 
   @Action({ rawError: true })
   async setItem(itemName, item) {
-    await fs.readFile(`${this.path}/HRLabData/auth.txt`, 'utf8' , (err, data) => {
+    await fs.readFile(`${path}/HRLabData/auth.txt`, 'utf8' , (err, data) => {
       if (err) {
         console.log(err);
         return;
@@ -41,7 +37,7 @@ export default class AuthState extends VuexModule {
       console.log(data);
       jsonData = JSON.parse(data);
       jsonData[itemName] = item;
-      fs.writeFile(`${this.path}/HRLabData/auth.txt`, JSON.stringify(jsonData), (err) => {
+      fs.writeFile(`${path}/HRLabData/auth.txt`, JSON.stringify(jsonData), (err) => {
         if (err) {
           console.log(err);
           return;
