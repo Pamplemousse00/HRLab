@@ -5,8 +5,8 @@
     <section class="columns">
       <div class="column">
         <line-chart :chart-data="chartData" :options="chartOptions"></line-chart>
-        <b-button v-if="true" type="is-danger" expanded>Start Data Collection</b-button>
-        <b-button v-else type="is-success" expanded>Collecting Data...</b-button>
+        <b-button v-if="(serialModule.currentMode != 0) && !serialModule.collectingData" type="is-danger" expanded @click="serialModule.startDataCapture()">Start Data Collection</b-button>
+        <b-button v-if="(serialModule.currentMode != 0) && serialModule.collectingData" type="is-success" expanded @click="serialModule.stopDataCapture()">Collecting Data...</b-button>
       </div>
       <div class="column">
         <b-tabs type="is-boxed" size="is-medium">
@@ -30,9 +30,13 @@ import DOO from '@/dashboard/dashboardViews/DOO'
 import VOO from '@/dashboard/dashboardViews/VOO'
 import VVI from '@/dashboard/dashboardViews/VVI'
 import Navbar from '@/dashboard/Navbar'
+import SerialState from '@/store/serial'
+import { getModule } from 'vuex-module-decorators'
+
 export default {
   data() {
     return {
+      serialModule: {},
       chartOptions: {
         responsive: true,
         maintainAspectRatio: false,
@@ -69,6 +73,9 @@ export default {
         }
       }
     }
+  },
+  mounted () {
+    this.serialModule = getModule(SerialState, this.$store);
   },
   computed: {
     chartData: function() {

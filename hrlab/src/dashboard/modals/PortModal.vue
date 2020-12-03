@@ -43,6 +43,14 @@ export default {
     this.serialModule = getModule(SerialState, this.$store);
     this.serialModule.listPorts().then(x => this.tableData = x);
   },
+  watch: {
+    "serialModule.serialNumber": function() {
+      const serialNumber = this.serialModule.serialNumber;
+      if(serialNumber.length == 8) {
+        console.log("TODO SAVE SERIAL NUMBER", serialNumber);
+      }
+    },
+  },
   methods: {
   }
 }

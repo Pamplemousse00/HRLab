@@ -44,13 +44,13 @@ let currPacket = [];
 
 // Private Functions
 function recieveHandler(rxdata) {
-  console.log(rxdata)
+  //console.log(rxdata)
 
   rxdata.forEach(b => {  
     currPacket.push(b)
     
     if(currPacket.length == 17) {
-      console.log("Packet", currPacket)
+      //console.log("Packet", currPacket)
 
       const recvChecksum = ((currPacket[16] << 8) | currPacket[15]);
       
@@ -63,7 +63,7 @@ function recieveHandler(rxdata) {
       if(!valid) {
         console.log(`Invalid. ${currPacket[0]} != 0xFE or checksum ${calculatedChecksum} != ${recvChecksum}`);
       } else {
-        console.log(`Valid checksum ${calculatedChecksum} == ${recvChecksum}`);
+        // console.log(`Valid checksum ${calculatedChecksum} == ${recvChecksum}`);
       }
 
       if(currPacket[1] == 20 /* Data */) {
@@ -83,8 +83,6 @@ function sendPacket(type, payload, handler) {
 
   if(payload == undefined) { payload = []; }
   if(handler == undefined) { handler = function(d){}; }
-
-  console.log(payload)
 
   if(payload.length < 13) {
     payload.push(...Array(13 - payload.length).fill(0));
@@ -117,18 +115,30 @@ function handleAck(packet) {
 export default class SerialState extends VuexModule {
   // Public variables
   currentMode = 0;
+  collectingData = false;
+  serialNumber = "";
   atrSignalReadings = [];
   ventSignalReadings = [];
+
+  @Mutation
+  setCurrentMode(mode) {
+    this.currentMode = mode;
+  }
+
+  @Mutation
+  setCollectingData(s) {
+    this.collectingData = s;
+  }
+
+  @Mutation
+  setSerialNumber(s) {
+    this.serialNumber = s;
+  }
 
   @Action({ rawError: true })
   async listPorts() {
     const ports = await SerialPort.list()
     return ports.map(x => x.path)
-  }
-
-  @Mutation
-  setCurrentMode(mode) {
-    this.currentMode = mode;
   }
 
   @Action({ rawError: true })
@@ -148,6 +158,14 @@ export default class SerialState extends VuexModule {
       console.log(PacketTypeNames[packet[1]]);
       this.setCurrentMode(packet[1]);
     })
+
+    await new Promise(resolve => setTimeout(resolve, 10));
+    
+    // get the current mode of the pacemaker
+    sendPacket(17 /* GetSerialNumber */, [], packet => {
+      this.setSerialNumber(packet.slice(2, 10).map(c => String.fromCharCode(c)).join(""));
+      console.log("SN", this.serialNumber);
+    })
   }
 
   @Action({ rawError: true })
@@ -159,8 +177,9 @@ export default class SerialState extends VuexModule {
   }
 
   @Action({ rawError: true })
-  startAOO({p_pulse_rate, p_atrial_width, p_atrial_amplitude}) {
+  async startAOO({p_pulse_rate, p_atrial_width, p_atrial_amplitude}) {
     sendPacket(1 /* StartAOO */, [p_pulse_rate, p_atrial_width, p_atrial_amplitude], handleAck);
+    await new Promise(resolve => setTimeout(resolve, 10));
     sendPacket(18 /* GetCurrentMode */, [], packet => {
       console.log(PacketTypeNames[packet[1]]);
       this.setCurrentMode(packet[1]);
@@ -168,77 +187,270 @@ export default class SerialState extends VuexModule {
   }
 
   @Action({ rawError: true })
-  startAOOR(p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
-    this.port.write(new Uint8Array([0xFE, 2, p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor, 0, 0]))
+  async startAOOR(p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
+    sendPacket(2 /* StartAOOR */, [
+      p_pulse_rate,
+      p_atrial_width,
+      p_atrial_amplitude,
+      p_MSR,
+      p_acc_threshold & 0xFF,
+      (p_acc_threshold >> 8) & 0xFF,
+      p_react_time,
+      p_recovery_time,
+      p_response_factor
+    ], handleAck);
+    await new Promise(resolve => setTimeout(resolve, 10));
+    sendPacket(18 /* GetCurrentMode */, [], packet => {
+      console.log(PacketTypeNames[packet[1]]);
+      this.setCurrentMode(packet[1]);
+    })
   }
 
   @Action({ rawError: true })
-  startVOO(p_pulse_rate, p_vent_width, p_vent_amplitude) {
-    this.port.write(new Uint8Array([0xFE, 3, p_pulse_rate, p_vent_width, p_vent_amplitude, 0, 0]))
+  async startVOO(p_pulse_rate, p_vent_width, p_vent_amplitude) {
+    sendPacket(3 /* StartVOO */, [ p_pulse_rate, p_vent_width, p_vent_amplitude ], handleAck);
+    await new Promise(resolve => setTimeout(resolve, 10));
+    sendPacket(18 /* GetCurrentMode */, [], packet => {
+      console.log(PacketTypeNames[packet[1]]);
+      this.setCurrentMode(packet[1]);
+    })
   }
 
   @Action({ rawError: true })
-  startVOOR(p_pulse_rate, p_vent_width, p_vent_amplitude, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
-    this.port.write(new Uint8Array([0xFE, 4, p_pulse_rate, p_vent_width, p_vent_amplitude, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor, 0, 0]))
+  async startVOOR(p_pulse_rate, p_vent_width, p_vent_amplitude, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
+    sendPacket(4 /* StartVOOR */, [
+      p_pulse_rate,
+      p_vent_width,
+      p_vent_amplitude,
+      p_MSR,
+      p_acc_threshold & 0xFF,
+      (p_acc_threshold >> 8) & 0xFF,
+      p_react_time,
+      p_recovery_time,
+      p_response_factor
+    ], handleAck);
+    await new Promise(resolve => setTimeout(resolve, 10));
+    sendPacket(18 /* GetCurrentMode */, [], packet => {
+      console.log(PacketTypeNames[packet[1]]);
+      this.setCurrentMode(packet[1]);
+    })
   }
 
   @Action({ rawError: true })
-  startAAI(p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_atrial_sensitivity, p_ARP) {
-    this.port.write(new Uint8Array([0xFE, 5, p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_atrial_sensitivity, p_ARP, 0, 0]))
+  async startAAI(p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_atrial_sensitivity, p_ARP) {
+    sendPacket(5 /* StartAAI */, [
+      p_pulse_rate,
+      p_atrial_width,
+      p_atrial_amplitude,
+      p_atrial_sensitivity,
+      p_ARP & 0xFF,
+      (p_ARP >> 8) & 0xFF
+    ], handleAck);
+    await new Promise(resolve => setTimeout(resolve, 10));
+    sendPacket(18 /* GetCurrentMode */, [], packet => {
+      console.log(PacketTypeNames[packet[1]]);
+      this.setCurrentMode(packet[1]);
+    })
   }
 
   @Action({ rawError: true })
-  startAAIH(p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_atrial_sensitivity, p_ARP, p_hysteresis_rate) {
-    this.port.write(new Uint8Array([0xFE, 6, p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_atrial_sensitivity, p_ARP, p_hysteresis_rate, 0, 0]))
+  async startAAIH(p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_atrial_sensitivity, p_ARP, p_hysteresis_rate) {
+    sendPacket(6 /* StartAAIH */, [
+      p_pulse_rate,
+      p_atrial_width,
+      p_atrial_amplitude,
+      p_atrial_sensitivity,
+      p_ARP & 0xFF,
+      (p_ARP >> 8) & 0xFF,
+      p_hysteresis_rate
+    ], handleAck);
+    await new Promise(resolve => setTimeout(resolve, 10));
+    sendPacket(18 /* GetCurrentMode */, [], packet => {
+      console.log(PacketTypeNames[packet[1]]);
+      this.setCurrentMode(packet[1]);
+    })
   }
 
   @Action({ rawError: true })
-  startAAIR(p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_atrial_sensitivity, p_ARP, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
-    this.port.write(new Uint8Array([0xFE, 7, p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_atrial_sensitivity, p_ARP, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor, 0, 0]))
+  async startAAIR(p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_atrial_sensitivity, p_ARP, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
+    sendPacket(7 /* StartAAIR */, [
+      p_pulse_rate,
+      p_atrial_width,
+      p_atrial_amplitude,
+      p_atrial_sensitivity,
+      p_ARP & 0xFF,
+      (p_ARP >> 8) & 0xFF,
+      p_MSR,
+      p_acc_threshold & 0xFF,
+      (p_acc_threshold >> 8) & 0xFF,
+      p_react_time,
+      p_recovery_time,
+      p_response_factor
+    ], handleAck);
+    await new Promise(resolve => setTimeout(resolve, 10));
+    sendPacket(18 /* GetCurrentMode */, [], packet => {
+      console.log(PacketTypeNames[packet[1]]);
+      this.setCurrentMode(packet[1]);
+    })
   }
   
   @Action({ rawError: true })
-  startAAIHR(p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_atrial_sensitivity, p_ARP, p_hysteresis_rate, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
-    this.port.write(new Uint8Array([0xFE, 8, p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_atrial_sensitivity, p_ARP, p_hysteresis_rate, 0, 0]))
+  async startAAIHR(p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_atrial_sensitivity, p_ARP, p_hysteresis_rate, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
+    sendPacket(8 /* StartAAIHR */, [
+      p_pulse_rate,
+      p_atrial_width,
+      p_atrial_amplitude,
+      p_atrial_sensitivity,
+      p_ARP & 0xFF,
+      (p_ARP >> 8) & 0xFF,
+      p_hysteresis_rate,
+      p_MSR,
+      p_acc_threshold & 0xFF,
+      (p_acc_threshold >> 8) & 0xFF,
+      p_react_time,
+      p_recovery_time,
+      p_response_factor
+    ], handleAck);
+    await new Promise(resolve => setTimeout(resolve, 10));
+    sendPacket(18 /* GetCurrentMode */, [], packet => {
+      console.log(PacketTypeNames[packet[1]]);
+      this.setCurrentMode(packet[1]);
+    })
   }
 
   @Action({ rawError: true })
-  startVVI(p_pulse_rate, p_vent_width, p_vent_amplitude, p_vent_sensitivity, p_VRP) {
-    this.port.write(new Uint8Array([0xFE, 9, p_pulse_rate, p_vent_width, p_vent_amplitude, p_vent_sensitivity, p_VRP, 0, 0]))
+  async startVVI(p_pulse_rate, p_vent_width, p_vent_amplitude, p_vent_sensitivity, p_VRP) {
+    sendPacket(9 /* StartVVI */, [
+      p_pulse_rate,
+      p_vent_width,
+      p_vent_amplitude,
+      p_vent_sensitivity,
+      p_VRP & 0xFF,
+      (p_VRP >> 8) & 0xFF
+    ], handleAck);
+    await new Promise(resolve => setTimeout(resolve, 10));
+    sendPacket(18 /* GetCurrentMode */, [], packet => {
+      console.log(PacketTypeNames[packet[1]]);
+      this.setCurrentMode(packet[1]);
+    })
   }
 
   @Action({ rawError: true })
-  startVVIH(p_pulse_rate, p_vent_width, p_vent_amplitude, p_vent_sensitivity, p_VRP, p_hysteresis_rate) {
-    this.port.write(new Uint8Array([0xFE, 10, p_pulse_rate, p_vent_width, p_vent_amplitude, p_vent_sensitivity, p_VRP, p_hysteresis_rate, 0, 0]))
+  async startVVIH(p_pulse_rate, p_vent_width, p_vent_amplitude, p_vent_sensitivity, p_VRP, p_hysteresis_rate) {
+    sendPacket(10 /* StartVVIH */, [
+      p_pulse_rate,
+      p_vent_width,
+      p_vent_amplitude,
+      p_vent_sensitivity,
+      p_VRP & 0xFF,
+      (p_VRP >> 8) & 0xFF,
+      p_hysteresis_rate
+    ], handleAck);
+    await new Promise(resolve => setTimeout(resolve, 10));
+    sendPacket(18 /* GetCurrentMode */, [], packet => {
+      console.log(PacketTypeNames[packet[1]]);
+      this.setCurrentMode(packet[1]);
+    })
   }
 
   @Action({ rawError: true })
-  startVVIR(p_pulse_rate, p_vent_width, p_vent_amplitude, p_vent_sensitivity, p_VRP, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
-    this.port.write(new Uint8Array([0xFE, 11, p_pulse_rate, p_vent_width, p_vent_amplitude, p_vent_sensitivity, p_VRP, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor, 0, 0]))
+  async startVVIR(p_pulse_rate, p_vent_width, p_vent_amplitude, p_vent_sensitivity, p_VRP, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
+    sendPacket(11 /* StartVVIR */, [
+      p_pulse_rate,
+      p_vent_width,
+      p_vent_amplitude,
+      p_vent_sensitivity,
+      p_VRP & 0xFF,
+      (p_VRP >> 8) & 0xFF,
+      p_MSR,
+      p_acc_threshold & 0xFF,
+      (p_acc_threshold >> 8) & 0xFF,
+      p_react_time,
+      p_recovery_time,
+      p_response_factor
+    ], handleAck);
+    await new Promise(resolve => setTimeout(resolve, 10));
+    sendPacket(18 /* GetCurrentMode */, [], packet => {
+      console.log(PacketTypeNames[packet[1]]);
+      this.setCurrentMode(packet[1]);
+    })
   }
 
   @Action({ rawError: true })
-  startVVIHR(p_pulse_rate, p_vent_width, p_vent_amplitude, p_vent_sensitivity, p_VRP, p_hysteresis_rate, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
-    this.port.write(new Uint8Array([0xFE, 12, p_pulse_rate, p_vent_width, p_vent_amplitude, p_vent_sensitivity, p_VRP, p_hysteresis_rate, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor, 0, 0]))
+  async startVVIHR(p_pulse_rate, p_vent_width, p_vent_amplitude, p_vent_sensitivity, p_VRP, p_hysteresis_rate, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
+    sendPacket(12 /* StartVVIHR */, [
+      p_pulse_rate,
+      p_vent_width,
+      p_vent_amplitude,
+      p_vent_sensitivity,
+      p_VRP & 0xFF,
+      (p_VRP >> 8) & 0xFF,
+      p_hysteresis_rate,
+      p_MSR,
+      p_acc_threshold & 0xFF,
+      (p_acc_threshold >> 8) & 0xFF,
+      p_react_time,
+      p_recovery_time,
+      p_response_factor
+    ], handleAck);
+    await new Promise(resolve => setTimeout(resolve, 10));
+    sendPacket(18 /* GetCurrentMode */, [], packet => {
+      console.log(PacketTypeNames[packet[1]]);
+      this.setCurrentMode(packet[1]);
+    })
   }
 
   @Action({ rawError: true })
-  startDOO(p_pulse_rate, p_vent_width, p_vent_amplitude, p_atrial_width, p_atrial_amplitude, p_AV_delay) {
-    this.port.write(new Uint8Array([0xFE, 13, p_pulse_rate, p_vent_width, p_vent_amplitude, p_atrial_width, p_atrial_amplitude, p_AV_delay, 0, 0]))
+  async startDOO(p_pulse_rate, p_vent_width, p_vent_amplitude, p_atrial_width, p_atrial_amplitude, p_AV_delay) {
+    sendPacket(13 /* StartDOO */, [
+      p_pulse_rate,
+      p_vent_width,
+      p_vent_amplitude,
+      p_atrial_width,
+      p_atrial_amplitude,
+      p_AV_delay & 0xFF,
+      (p_AV_delay >> 8) & 0xFF
+    ], handleAck);
+    await new Promise(resolve => setTimeout(resolve, 10));
+    sendPacket(18 /* GetCurrentMode */, [], packet => {
+      console.log(PacketTypeNames[packet[1]]);
+      this.setCurrentMode(packet[1]);
+    })
   }
 
   @Action({ rawError: true })
-  startDOOR(p_pulse_rate, p_vent_width, p_vent_amplitude, p_atrial_width, p_atrial_amplitude, p_AV_delay, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
-    this.port.write(new Uint8Array([0xFE, 14, p_pulse_rate, p_vent_width, p_vent_amplitude, p_atrial_width, p_atrial_amplitude, p_AV_delay, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor, 0, 0]))
+  async startDOOR(p_pulse_rate, p_vent_width, p_vent_amplitude, p_atrial_width, p_atrial_amplitude, p_AV_delay, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
+    sendPacket(14 /* StartDOOR */, [
+      p_pulse_rate,
+      p_vent_width,
+      p_vent_amplitude,
+      p_atrial_width,
+      p_atrial_amplitude,
+      p_AV_delay & 0xFF,
+      (p_AV_delay >> 8) & 0xFF,
+      p_MSR,
+      p_acc_threshold & 0xFF,
+      (p_acc_threshold >> 8) & 0xFF,
+      p_react_time,
+      p_recovery_time,
+      p_response_factor
+    ], handleAck);
+    await new Promise(resolve => setTimeout(resolve, 10));
+    sendPacket(18 /* GetCurrentMode */, [], packet => {
+      console.log(PacketTypeNames[packet[1]]);
+      this.setCurrentMode(packet[1]);
+    })
   }
 
   @Action({ rawError: true })
   startDataCapture() {
-    this.port.write(new Uint8Array([0xFE, 15, 0, 0]))
+    sendPacket(15 /* StartDataCapture */, [], handleAck);
+    this.setCollectingData(true);
   }
 
   @Action({ rawError: true })
   stopDataCapture() {
-    this.port.write(new Uint8Array([0xFE, 16, 0, 0]))
+    sendPacket(16 /* StopDataCapture */, [], handleAck);
+    this.setCollectingData(false);
   }
 }
