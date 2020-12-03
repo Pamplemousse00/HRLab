@@ -14,30 +14,31 @@ export default class AuthState extends VuexModule {
 
   @Action({ rawError: true })
   async getItem(itemName) {
-    let returnData = {};
-    await fs.readFile(`${path}/HRLabData/auth.txt`, 'utf8' , (err, data) => {
-      if (err) {
-        console.log(err);
-        return;
-      }
-      console.log(data);
-      jsonData = JSON.parse(data);
-      returnData = jsonData[itemName];
-    });
+    let returnData;
+    let data = await fs.readFileSync(`${path}/users.json`, 'utf8');
+
+    let jsonData = JSON.parse(data);
+    returnData = jsonData[itemName];
     return returnData;
   }
 
   @Action({ rawError: true })
-  async setItem(itemName, item) {
-    await fs.readFile(`${path}/HRLabData/auth.txt`, 'utf8' , (err, data) => {
+  async setItem(setItemObject) {
+    console.log(setItemObject);
+    fs.readFile(`${path}/users.json`, 'utf8' , (err, data) => {
+      console.log('AAAAAAA');
       if (err) {
         console.log(err);
         return;
       }
-      console.log(data);
-      jsonData = JSON.parse(data);
-      jsonData[itemName] = item;
-      fs.writeFile(`${path}/HRLabData/auth.txt`, JSON.stringify(jsonData), (err) => {
+      let jsonData = {};
+      if(data.length > 0) {
+        jsonData = JSON.parse(data);
+      }
+      console.log(jsonData);
+      jsonData[setItemObject.itemName] = setItemObject.item;
+      
+      fs.writeFile(`${path}/users.json`, JSON.stringify(jsonData), (err) => {
         if (err) {
           console.log(err);
           return;
@@ -49,9 +50,9 @@ export default class AuthState extends VuexModule {
   }
 
   @Action({ rawError: true })
-  isLoggedIn() {
+  async isLoggedIn() {
     // get the current user. If undefined, nobody is logged in
-    var currentUserIndex = JSON.parse(window.localStorage.getItem('currentUserIndex'));
+    var currentUserIndex = await this.getItem('currentUserIndex');
     if (currentUserIndex != null) {
       return true;
     } else {
@@ -60,9 +61,10 @@ export default class AuthState extends VuexModule {
   }
 
   @Action({ rawError: true })
-  getCurrentUser() {
-    if (this.isLoggedIn()) {
-      var currentUser = JSON.parse(localStorage.getItem('users'))[JSON.parse(window.localStorage.getItem('currentUserIndex'))];
+  async getCurrentUser() {
+    if (await this.isLoggedIn()) {
+      var users = await this.getItem('users');
+      var currentUser = users[await this.getItem('currentUserIndex')];
       return currentUser;
     } else {
       window.location.href = './login.html';
@@ -71,14 +73,14 @@ export default class AuthState extends VuexModule {
   }
 
   @Action({ rawError: true })
-  updateCurrentUser(newUser) {
-    var existingUsers = JSON.parse(window.localStorage.getItem('users'));
-    existingUsers[JSON.parse(localStorage.getItem('currentUserIndex'))] = newUser;
-    localStorage.setItem('users', JSON.stringify(existingUsers));
+  async updateCurrentUser(newUser) {
+    var existingUsers = await this.getItem('users');
+    existingUsers[await this.getItem('currentUserIndex')] = newUser;
+    await this.setItem({ itemName: 'users', item: existingUsers });
   }
 
   @Action({ rawError: true })
-  register(registerObject) {
+  async register(registerObject) {
     // registering a new user
     var newUser = {
       username: registerObject.username,
@@ -90,10 +92,10 @@ export default class AuthState extends VuexModule {
       VVI: {},
       DOO: {}
     }
-    var existingUsers = JSON.parse(window.localStorage.getItem('users'));
-  
+    var existingUsers = await this.getItem('users');
+
     // first-time initialization of 'existingUsers'
-    if (!existingUsers) {
+    if (existingUsers == undefined) {
       existingUsers = [];
     }
   
@@ -104,34 +106,35 @@ export default class AuthState extends VuexModule {
     // append new user to storage
     console.log(newUser);
     existingUsers.push(newUser);
-    window.localStorage.setItem('users', JSON.stringify(existingUsers));
-
-    return true
+    console.log(existingUsers);
+    if(await this.setItem({ itemName: 'users', item: existingUsers })) {
+      console.log('BBBBB');
+    }
   }
 
   @Action({ rawError: true })
-  login(loginObject) {
+  async login(loginObject) {
     // get all users
-    var existingUsers = JSON.parse(window.localStorage.getItem('users'));
+    var existingUsers = await this.getItem('users');
     console.log(existingUsers);
     //loop through all users looking for a match
     let flag = false;
-    existingUsers.forEach((user, index) => {
-      if (user.username == loginObject.username) {
-        if(user.password == loginObject.password) {
+    for(let i = 0; i < existingUsers.length; i++) {
+      if (existingUsers[i].username == loginObject.username) {
+        if(existingUsers[i].password == loginObject.password) {
           // log user in and proceed to dashboard
-          window.localStorage.setItem('currentUserIndex', JSON.stringify(index));
+          await this.setItem({ itemName: 'currentUserIndex', item: i });
           flag = true;
         }
       }
-    });
+    }
     console.log(flag);
     return flag;
   }
 
   @Action({ rawError: true })
-  logout() {
-    window.localStorage.setItem('currentUserIndex', JSON.stringify(null));
+  async logout() {
+    await this.setItem({ itemName: 'currentUserIndex', item: null });
     window.location.href = './login.html';
   }
 
