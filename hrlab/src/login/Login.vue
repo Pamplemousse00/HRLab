@@ -51,11 +51,17 @@ export default {
   },
   methods: {
     async login() {
-      if(this.authModule.login({ username: this.username, password: this.password })) {
+      if(await this.authModule.login({ username: this.username, password: this.password })) {
         this.$router.push('/dashboard')
         // this.$buefy.toast.open({ message: "Welcome to HRLab.", position: "is-top", type: "is-success" });
       } else {
-        alert('user not found')
+        this.$buefy.dialog.alert({
+          title: 'Error',
+          message: 'User not found.',
+          type: 'is-danger',
+          ariaRole: 'alertdialog',
+          ariaModal: true
+        })
       }
     }
   },

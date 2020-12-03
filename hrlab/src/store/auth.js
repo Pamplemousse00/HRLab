@@ -15,11 +15,22 @@ export default class AuthState extends VuexModule {
   @Action({ rawError: true })
   async getItem(itemName) {
     let returnData;
-    let data = await fs.readFileSync(`${path}/users.json`, 'utf8');
+    if(await fs.existsSync(`${path}/users.json`)) {
+      let data = await fs.readFileSync(`${path}/users.json`, 'utf8');
 
-    let jsonData = JSON.parse(data);
-    returnData = jsonData[itemName];
-    return returnData;
+      let jsonData;
+      if(data.length > 0) {
+        jsonData = JSON.parse(data);
+        returnData = jsonData[itemName];
+        return returnData;
+      } else {
+        return null;
+      }
+    } else {
+      await fs.writeFileSync(`${path}/users.json`, '');
+      return null;
+    }
+    
   }
 
   @Action({ rawError: true })
@@ -116,15 +127,16 @@ export default class AuthState extends VuexModule {
   async login(loginObject) {
     // get all users
     var existingUsers = await this.getItem('users');
-    console.log(existingUsers);
     //loop through all users looking for a match
     let flag = false;
-    for(let i = 0; i < existingUsers.length; i++) {
-      if (existingUsers[i].username == loginObject.username) {
-        if(existingUsers[i].password == loginObject.password) {
-          // log user in and proceed to dashboard
-          await this.setItem({ itemName: 'currentUserIndex', item: i });
-          flag = true;
+    if(existingUsers !== null) {
+      for(let i = 0; i < existingUsers.length; i++) {
+        if (existingUsers[i].username == loginObject.username) {
+          if(existingUsers[i].password == loginObject.password) {
+            // log user in and proceed to dashboard
+            await this.setItem({ itemName: 'currentUserIndex', item: i });
+            flag = true;
+          }
         }
       }
     }
