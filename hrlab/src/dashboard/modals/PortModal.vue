@@ -4,6 +4,7 @@
       <p class="modal-card-title">Connect To Device</p>
     </header>
     <section class="modal-card-body">
+      Last connected device: {{serialNumber}}
       <b-table :data="tableData" v-if="serialModule.currentMode == 0">
         <b-table-column label="Path" v-slot="props">
           {{ props.row }}
@@ -30,24 +31,29 @@
 
 <script>
 import SerialState from '@/store/serial'
+import AuthState from '@/store/auth'
 import { getModule } from 'vuex-module-decorators'
 
 export default {
   data() {
     return {
       serialModule: {},
-      tableData: []
+      tableData: [],
+      authModule: {},
+      serialNumber: ''
     }
   },
   async mounted() {
     this.serialModule = getModule(SerialState, this.$store);
+    this.authModule = getModule(AuthState, this.$store);
     this.serialModule.listPorts().then(x => this.tableData = x);
+    this.serialNumber = await this.authModule.getItem('serialNumber');
   },
   watch: {
-    "serialModule.serialNumber": function() {
+    "serialModule.serialNumber": async function() {
       const serialNumber = this.serialModule.serialNumber;
       if(serialNumber.length == 8) {
-        console.log("TODO SAVE SERIAL NUMBER", serialNumber);
+        await this.authModule.setItem({ itemName: 'serialNumber', item: serialNumber });
       }
     },
   },
