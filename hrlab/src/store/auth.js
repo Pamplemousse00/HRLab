@@ -4,7 +4,7 @@ import {
 
 import fs from 'fs';
 
-const path = require('electron').remote.app.getAppPath();
+const path = require('electron').remote.app.getAppPath().replace("app.asar", "app.asar.unpacked");
 
 @Module({
   name: 'auth',
