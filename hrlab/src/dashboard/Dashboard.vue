@@ -49,8 +49,10 @@ export default {
           display: false
         },
         tooltips: {
-          mode: 'index',
-          intersect: false
+          enabled: false
+        },
+        animation: {
+          duration: 0
         },
         hover: {
           mode: 'nearest',
@@ -68,6 +70,10 @@ export default {
             scaleLabel: {
               display: true,
               labelString: 'Voltage'
+            },
+            ticks: {
+              suggestedMin: 0,
+              suggestedMax: 5
             }
           }]
         }
@@ -80,18 +86,18 @@ export default {
   computed: {
     chartData: function() {
       return {
-        labels: [],
+        labels: this.serialModule.timeSignalReadings,
         datasets: [
           {
             label: 'Atrial',
-            data: [],
+            data: this.serialModule.atrSignalReadings,
             fill: false,
             borderColor: 'rgba(255, 99, 132, 1)',
             borderWidth: 1
           },
           {
             label: 'Ventricular',
-            data: [],
+            data: this.serialModule.ventSignalReadings,
             fill: false,
             borderColor: 'rgba(32, 156, 238, 1)',
             borderWidth: 1

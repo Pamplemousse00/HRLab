@@ -41,6 +41,11 @@ const AckResponseCodes = [
 
 let pendingHandlers = [];
 let currPacket = [];
+let dataHandler = function() {};
+
+const dataFreq = 500;
+let i = 0;
+let starttime = performance.now();
 
 // Private Functions
 function recieveHandler(rxdata) {
@@ -67,7 +72,7 @@ function recieveHandler(rxdata) {
       }
 
       if(currPacket[1] == 20 /* Data */) {
-        console.log("Data packet", currPacket);
+        dataHandler(currPacket);
       } else {
         const handler = pendingHandlers.shift();
         handler(currPacket);
@@ -117,6 +122,7 @@ export default class SerialState extends VuexModule {
   currentMode = 0;
   collectingData = false;
   serialNumber = "";
+  timeSignalReadings = [];
   atrSignalReadings = [];
   ventSignalReadings = [];
 
@@ -135,6 +141,26 @@ export default class SerialState extends VuexModule {
     this.serialNumber = s;
   }
 
+  @Mutation
+  clearReadings() {
+    i = 0;
+    starttime = performance.now();
+    this.timeSignalReadings = [];
+    this.atrSignalReadings = [];
+    this.ventSignalReadings = [];
+  }
+
+  @Mutation
+  appendReading({t, atr, vent}) {
+    this.timeSignalReadings.push(t);
+    this.atrSignalReadings.push(atr);
+    this.ventSignalReadings.push(vent);
+
+    this.timeSignalReadings = this.timeSignalReadings.slice(-200);
+    this.atrSignalReadings = this.atrSignalReadings.slice(-200);
+    this.ventSignalReadings = this.ventSignalReadings.slice(-200);
+  }
+
   @Action({ rawError: true })
   async listPorts() {
     const ports = await SerialPort.list()
@@ -148,6 +174,17 @@ export default class SerialState extends VuexModule {
     // connect to serial
     pendingHandlers = [];
     currPacket = [];
+    dataHandler = packet => {
+      const atr = (3.3/65535)*((packet[3] << 8) | packet[2]);
+      const vent = (3.3/65535)*((packet[5] << 8) | packet[4]);
+
+      this.appendReading({
+        t: i / dataFreq,
+        atr: atr,
+        vent: vent
+      });
+      i++;
+    };
     port = new SerialPort(path, { baudRate: 115200 });
     port.on('data', recieveHandler)
     
@@ -444,12 +481,15 @@ export default class SerialState extends VuexModule {
 
   @Action({ rawError: true })
   startDataCapture() {
-    sendPacket(15 /* StartDataCapture */, [], handleAck);
     this.setCollectingData(true);
+    this.clearReadings();
+    sendPacket(15 /* StartDataCapture */, [], handleAck);
   }
 
   @Action({ rawError: true })
   stopDataCapture() {
+    const dt = (performance.now() - starttime) / 1000;
+    console.log("average freq", i / dt, "packet count", i, "dt", dt);
     sendPacket(16 /* StopDataCapture */, [], handleAck);
     this.setCollectingData(false);
   }
