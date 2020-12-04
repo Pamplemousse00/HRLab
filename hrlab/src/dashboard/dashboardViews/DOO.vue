@@ -117,11 +117,11 @@ export default {
 
       if(this.showRateAdaptation) {
         this.serialModule.startDOOR({
-          p_pulse_rate: parseInt(this.lowerRateLimit),
+          p_pulse_rate: parseInt(this.pulseRate),
           p_vent_width: parseInt(this.ventricularPulseWidth),
           p_vent_amplitude: Math.round(parseFloat(this.ventricularAmplitude) / 0.1),
-          p_vent_width: parseInt(this.atrialPulseWidth),
-          p_vent_amplitude: Math.round(parseFloat(this.atrialAmplitude) / 0.1),
+          p_atrial_width: parseInt(this.atrialPulseWidth),
+          p_atrial_amplitude: Math.round(parseFloat(this.atrialAmplitude) / 0.1),
           p_AV_delay: parseInt(this.AVDelay),
           p_MSR: parseInt(this.maximumSensorRate),
           p_acc_threshold: Math.round(parseFloat(this.activityThreshold) / 0.001),
@@ -131,11 +131,11 @@ export default {
         });
       } else {
         this.serialModule.startDOO({
-          p_pulse_rate: parseInt(this.lowerRateLimit),
+          p_pulse_rate: parseInt(this.pulseRate),
           p_vent_width: parseInt(this.ventricularPulseWidth),
           p_vent_amplitude: Math.round(parseFloat(this.ventricularAmplitude) / 0.1),
-          p_vent_width: parseInt(this.atrialPulseWidth),
-          p_vent_amplitude: Math.round(parseFloat(this.atrialAmplitude) / 0.1),
+          p_atrial_width: parseInt(this.atrialPulseWidth),
+          p_atrial_amplitude: Math.round(parseFloat(this.atrialAmplitude) / 0.1),
           p_AV_delay: parseInt(this.AVDelay)
         });
       }

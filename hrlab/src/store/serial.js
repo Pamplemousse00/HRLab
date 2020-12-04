@@ -49,13 +49,13 @@ let starttime = performance.now();
 
 // Private Functions
 function recieveHandler(rxdata) {
-  //console.log(rxdata)
+  // console.log(rxdata)
 
   rxdata.forEach(b => {  
     currPacket.push(b)
     
     if(currPacket.length == 17) {
-      //console.log("Packet", currPacket)
+      // console.log("Packet", currPacket)
 
       const recvChecksum = ((currPacket[16] << 8) | currPacket[15]);
       

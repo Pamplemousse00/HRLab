@@ -91,7 +91,7 @@ export default {
       this.lowerRateLimit = (user.VVI.lowerRateLimit != undefined) ? user.VVI.lowerRateLimit : 30;
       this.ventricularAmplitude = (user.VVI.ventricularAmplitude != undefined) ? user.VVI.ventricularAmplitude : 5;
       this.ventricularPulseWidth = (user.VVI.ventricularPulseWidth != undefined) ? user.VVI.ventricularPulseWidth : 10;
-      this.ventricularSensitivity = (user.VVI.ventricularSensitivity != undefined) ? user.VVI.ventricularPulseWidth : 3;
+      this.ventricularSensitivity = (user.VVI.ventricularSensitivity != undefined) ? user.VVI.ventricularSensitivity : 3;
       this.vrp = (user.VVI.vrp != undefined) ? user.VVI.vrp : 200;
       this.showHysteresisField = (user.VVI.showHysteresisField != undefined) ? user.VVI.showHysteresisField : false;
       this.hysteresisPacingRate = (user.VVI.hysteresisPacingRate != undefined) ? user.VVI.hysteresisPacingRate : 100;
