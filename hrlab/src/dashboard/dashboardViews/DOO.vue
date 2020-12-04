@@ -1,31 +1,23 @@
 <template>
   <div>
     <section class="section">
-        <b-field label="Pulse Rate" type="is-danger">
-          <b-input type="number" placeholder="Pulse Rate..." v-model="pulseRate" min="30" max="175"></b-input>
+        <b-field label="Pulse Rate (ppm)" type="is-danger">
+          <b-input type="number" placeholder="Pulse Rate..." v-model="pulseRate" min="30" max="175" step="1"></b-input>
         </b-field>
-        <b-field label="Ventricular Amplitude" type="is-danger">
-          <b-input type="number" placeholder="Ventricular Amplitude..." v-model="ventricularAmplitude" min="0.5" max="5" step="any"></b-input>
+        <b-field label="Ventricular Amplitude (V)" type="is-danger">
+          <b-input type="number" placeholder="Ventricular Amplitude..." v-model="ventricularAmplitude" min="0" max="5" step="0.1"></b-input>
         </b-field>
-        <b-field label="Ventricular Pulse Width" type="is-danger">
-          <b-input type="number" placeholder="Ventricular Pulse Width..." v-model="ventricularPulseWidth" min="0.5" max="5" step="any"></b-input>
+        <b-field label="Ventricular Pulse Width (ms)" type="is-danger">
+          <b-input type="number" placeholder="Ventricular Pulse Width..." v-model="ventricularPulseWidth" min="1" max="30" step="1"></b-input>
         </b-field>
-        <b-field label="Atrial Amplitude" type="is-danger">
-          <b-input type="number" placeholder="Atrial Amplitude..." v-model="atrialAmplitude" min="0.5" max="5" step="0.1"></b-input>
+        <b-field label="Atrial Amplitude (V)" type="is-danger">
+          <b-input type="number" placeholder="Atrial Amplitude..." v-model="atrialAmplitude" min="0" max="5" step="0.1"></b-input>
         </b-field>
-        <b-field label="Atrial Pulse Width" type="is-danger">
-          <b-input type="number" placeholder="Atrial Pulse Width..." v-model="atrialPulseWidth" min="0.5" max="5" step="0.1"></b-input>
+        <b-field label="Atrial Pulse Width (ms)" type="is-danger">
+          <b-input type="number" placeholder="Atrial Pulse Width..." v-model="atrialPulseWidth" min="1" max="30" step="1"></b-input>
         </b-field>
-        <b-field label="AV Delay" type="is-danger">
-          <b-input type="number" placeholder="AV Delay..." v-model="AVDelay" min="20" max="300"></b-input>
-        </b-field>
-        <div class="field">
-          <b-checkbox v-model="showHysteresisField" type="is-danger">
-            Hysteresis Pacing
-          </b-checkbox>
-        </div>
-        <b-field label="Hysteresis Pacing Rate" v-if="showHysteresisField" type="is-danger">
-          <b-input type="number" placeholder="Hysteresis Pacing Rate..." v-model="hysteresisPacingRate" min="30" max="175"></b-input>
+        <b-field label="AV Delay (ms)" type="is-danger">
+          <b-input type="number" placeholder="AV Delay..." v-model="AVDelay" min="20" max="300" step="1"></b-input>
         </b-field>
         <div class="field">
           <b-checkbox v-model="showRateAdaptation" type="is-danger">
@@ -33,23 +25,23 @@
           </b-checkbox>
         </div>
         <div v-if="showRateAdaptation" style="margin-bottom: 20px;">
-          <b-field label="Maximum Sensor Rate" type="is-danger">
+          <b-field label="Maximum Sensor Rate (ppm)" type="is-danger">
             <b-input type="number" placeholder="Maximum Sensor Rate..." v-model="maximumSensorRate" min="50" max="175" step="1"></b-input>
           </b-field>
-          <b-field label="Activity Threshold" type="is-danger">
+          <b-field label="Activity Threshold (g)" type="is-danger">
             <b-input type="number" placeholder="Activity Threshold..." v-model="activityThreshold" min="1" max="4" step="0.001"></b-input>
           </b-field>
-          <b-field label="Reaction Time" type="is-danger">
+          <b-field label="Reaction Time (s)" type="is-danger">
             <b-input type="number" placeholder="Reaction Time..." v-model="reactionTime" min="10" max="50" step="10"></b-input>
           </b-field>
-          <b-field label="Recovery Time" type="is-danger">
+          <b-field label="Recovery Time (min)" type="is-danger">
             <b-input type="number" placeholder="Recovery Time..." v-model="recoveryTime" min="2" max="16" step="1"></b-input>
           </b-field>
           <b-field label="Response Factor" type="is-danger">
             <b-input type="number" placeholder="Response Factor..." v-model="responseFactor" min="1" max="16" step="1"></b-input>
           </b-field>
         </div>
-        <button class="button is-danger is-fullwidth" v-on:click="saveData()">Save</button>
+        <button class="button is-danger is-fullwidth" v-on:click="saveData()">{{ (serialModule.currentMode == 0) ? "Save" : "Save & Send" }}</button>
     </section>
   </div>
 </template>
@@ -57,19 +49,20 @@
 <script>
 
 import AuthState from '@/store/auth'
+import SerialState from '@/store/serial'
 import { getModule } from 'vuex-module-decorators'
 
 export default {
   data() {
     return {
       authModule: undefined,
-      showHysteresisField: false,
+      serialModule: {},
+
+      pulseRate: undefined,
       ventricularAmplitude: undefined,
       ventricularPulseWidth: undefined,
       atrialAmplitude: undefined,
       atrialPulseWidth: undefined,
-      hysteresisPacingRate: undefined,
-      pulseRate: undefined,
       AVDelay: undefined,
       showRateAdaptation: false,
       maximumSensorRate: undefined,
@@ -81,6 +74,7 @@ export default {
   },
   mounted() {
     this.authModule = getModule(AuthState, this.$store);
+    this.serialModule = getModule(SerialState, this.$store);
     this.getData();
   },
   methods: {
@@ -88,18 +82,18 @@ export default {
       // run on init, prefills textboxes with data from user's storage
       var user = await this.authModule.getCurrentUser();
       console.log(user);
-      user.DOO.atrialAmplitude != undefined ? this.atrialAmplitude = user.DOO.atrialAmplitude : null;
-      user.DOO.atrialPulseWidth != undefined ? this.atrialPulseWidth = user.DOO.atrialPulseWidth : null;
-      user.DOO.ventricularAmplitude != undefined ? this.ventricularAmplitude = user.DOO.ventricularAmplitude : null;
-      user.DOO.ventricularPulseWidth != undefined ? this.ventricularPulseWidth = user.DOO.ventricularPulseWidth : null;
-      user.DOO.showHysteresisField != undefined ? this.showHysteresisField = user.DOO.showHysteresisField : null;
-      user.DOO.hysteresisPacingRate != undefined ? this.hysteresisPacingRate = user.DOO.hysteresisPacingRate : null;
-      user.DOO.showRateAdaptation != undefined ? this.showRateAdaptation = user.DOO.showRateAdaptation : null;
-      user.DOO.maximumSensorRate != undefined ? this.maximumSensorRate = user.DOO.maximumSensorRate : null;
-      user.DOO.activityThreshold != undefined ? this.activityThreshold = user.DOO.activityThreshold : null;
-      user.DOO.reactionTime != undefined ? this.reactionTime = user.DOO.reactionTime : null;
-      user.DOO.recoveryTime != undefined ? this.recoveryTime = user.DOO.recoveryTime : null;
-      user.DOO.responseFactor != undefined ? this.responseFactor = user.DOO.responseFactor : null;
+      this.pulseRate = (user.DOO.pulseRate != undefined) ? user.DOO.pulseRate : 100;
+      this.atrialAmplitude = (user.DOO.atrialAmplitude != undefined) ? user.DOO.atrialAmplitude : 5;
+      this.atrialPulseWidth = (user.DOO.atrialPulseWidth != undefined) ? user.DOO.atrialPulseWidth : 20;
+      this.ventricularAmplitude = (user.DOO.ventricularAmplitude != undefined) ? user.DOO.ventricularAmplitude : 5;
+      this.ventricularPulseWidth = (user.DOO.ventricularPulseWidth != undefined) ? user.DOO.ventricularPulseWidth : 20;
+      this.AVDelay = (user.DOO.AVDelay != undefined) ? user.DOO.AVDelay : 100;
+      this.showRateAdaptation = (user.DOO.showRateAdaptation != undefined) ? user.DOO.showRateAdaptation : false;
+      this.maximumSensorRate = (user.DOO.maximumSensorRate != undefined) ? user.DOO.maximumSensorRate : 100;
+      this.activityThreshold = (user.DOO.activityThreshold != undefined) ? user.DOO.activityThreshold : 2;
+      this.reactionTime = (user.DOO.reactionTime != undefined) ? user.DOO.reactionTime : 20;
+      this.recoveryTime = (user.DOO.recoveryTime != undefined) ? user.DOO.recoveryTime : 3;
+      this.responseFactor = (user.DOO.responseFactor != undefined) ? user.DOO.responseFactor : 1;
     },
     async saveData() {
       // get current user, edit it's properties for this specific mode
@@ -111,8 +105,6 @@ export default {
         atrialAmplitude: this.atrialAmplitude,
         atrialPulseWidth: this.atrialPulseWidth,
         AVDelay: this.AVDelay,
-        showHysteresisField: this.showHysteresisField,
-        hysteresisPacingRate: this.hysteresisPacingRate,
         showRateAdaptation: this.showRateAdaptation,
         maximumSensorRate: this.maximumSensorRate,
         activityThreshold: this.activityThreshold,
@@ -122,6 +114,31 @@ export default {
       }
       // save to storage
       this.authModule.updateCurrentUser(user);
+
+      if(this.showRateAdaptation) {
+        this.serialModule.startDOOR({
+          p_pulse_rate: parseInt(this.lowerRateLimit),
+          p_vent_width: parseInt(this.ventricularPulseWidth),
+          p_vent_amplitude: Math.round(parseFloat(this.ventricularAmplitude) / 0.1),
+          p_vent_width: parseInt(this.atrialPulseWidth),
+          p_vent_amplitude: Math.round(parseFloat(this.atrialAmplitude) / 0.1),
+          p_AV_delay: parseInt(this.AVDelay),
+          p_MSR: parseInt(this.maximumSensorRate),
+          p_acc_threshold: Math.round(parseFloat(this.activityThreshold) / 0.001),
+          p_react_time: Math.round(parseFloat(this.reactionTime) / 10),
+          p_recovery_time: parseInt(this.recoveryTime),
+          p_response_factor: parseInt(this.responseFactor)
+        });
+      } else {
+        this.serialModule.startDOO({
+          p_pulse_rate: parseInt(this.lowerRateLimit),
+          p_vent_width: parseInt(this.ventricularPulseWidth),
+          p_vent_amplitude: Math.round(parseFloat(this.ventricularAmplitude) / 0.1),
+          p_vent_width: parseInt(this.atrialPulseWidth),
+          p_vent_amplitude: Math.round(parseFloat(this.atrialAmplitude) / 0.1),
+          p_AV_delay: parseInt(this.AVDelay)
+        });
+      }
     }
   }
 }

@@ -187,7 +187,7 @@ export default class SerialState extends VuexModule {
   }
 
   @Action({ rawError: true })
-  async startAOOR(p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
+  async startAOOR({p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor}) {
     sendPacket(2 /* StartAOOR */, [
       p_pulse_rate,
       p_atrial_width,
@@ -207,7 +207,7 @@ export default class SerialState extends VuexModule {
   }
 
   @Action({ rawError: true })
-  async startVOO(p_pulse_rate, p_vent_width, p_vent_amplitude) {
+  async startVOO({p_pulse_rate, p_vent_width, p_vent_amplitude}) {
     sendPacket(3 /* StartVOO */, [ p_pulse_rate, p_vent_width, p_vent_amplitude ], handleAck);
     await new Promise(resolve => setTimeout(resolve, 10));
     sendPacket(18 /* GetCurrentMode */, [], packet => {
@@ -217,7 +217,7 @@ export default class SerialState extends VuexModule {
   }
 
   @Action({ rawError: true })
-  async startVOOR(p_pulse_rate, p_vent_width, p_vent_amplitude, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
+  async startVOOR({p_pulse_rate, p_vent_width, p_vent_amplitude, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor}) {
     sendPacket(4 /* StartVOOR */, [
       p_pulse_rate,
       p_vent_width,
@@ -237,7 +237,7 @@ export default class SerialState extends VuexModule {
   }
 
   @Action({ rawError: true })
-  async startAAI(p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_atrial_sensitivity, p_ARP) {
+  async startAAI({p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_atrial_sensitivity, p_ARP}) {
     sendPacket(5 /* StartAAI */, [
       p_pulse_rate,
       p_atrial_width,
@@ -254,7 +254,7 @@ export default class SerialState extends VuexModule {
   }
 
   @Action({ rawError: true })
-  async startAAIH(p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_atrial_sensitivity, p_ARP, p_hysteresis_rate) {
+  async startAAIH({p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_atrial_sensitivity, p_ARP, p_hysteresis_rate}) {
     sendPacket(6 /* StartAAIH */, [
       p_pulse_rate,
       p_atrial_width,
@@ -272,7 +272,7 @@ export default class SerialState extends VuexModule {
   }
 
   @Action({ rawError: true })
-  async startAAIR(p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_atrial_sensitivity, p_ARP, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
+  async startAAIR({p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_atrial_sensitivity, p_ARP, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor}) {
     sendPacket(7 /* StartAAIR */, [
       p_pulse_rate,
       p_atrial_width,
@@ -295,7 +295,7 @@ export default class SerialState extends VuexModule {
   }
   
   @Action({ rawError: true })
-  async startAAIHR(p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_atrial_sensitivity, p_ARP, p_hysteresis_rate, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
+  async startAAIHR({p_pulse_rate, p_atrial_width, p_atrial_amplitude, p_atrial_sensitivity, p_ARP, p_hysteresis_rate, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor}) {
     sendPacket(8 /* StartAAIHR */, [
       p_pulse_rate,
       p_atrial_width,
@@ -319,7 +319,7 @@ export default class SerialState extends VuexModule {
   }
 
   @Action({ rawError: true })
-  async startVVI(p_pulse_rate, p_vent_width, p_vent_amplitude, p_vent_sensitivity, p_VRP) {
+  async startVVI({p_pulse_rate, p_vent_width, p_vent_amplitude, p_vent_sensitivity, p_VRP}) {
     sendPacket(9 /* StartVVI */, [
       p_pulse_rate,
       p_vent_width,
@@ -336,7 +336,7 @@ export default class SerialState extends VuexModule {
   }
 
   @Action({ rawError: true })
-  async startVVIH(p_pulse_rate, p_vent_width, p_vent_amplitude, p_vent_sensitivity, p_VRP, p_hysteresis_rate) {
+  async startVVIH({p_pulse_rate, p_vent_width, p_vent_amplitude, p_vent_sensitivity, p_VRP, p_hysteresis_rate}) {
     sendPacket(10 /* StartVVIH */, [
       p_pulse_rate,
       p_vent_width,
@@ -354,7 +354,7 @@ export default class SerialState extends VuexModule {
   }
 
   @Action({ rawError: true })
-  async startVVIR(p_pulse_rate, p_vent_width, p_vent_amplitude, p_vent_sensitivity, p_VRP, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
+  async startVVIR({p_pulse_rate, p_vent_width, p_vent_amplitude, p_vent_sensitivity, p_VRP, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor}) {
     sendPacket(11 /* StartVVIR */, [
       p_pulse_rate,
       p_vent_width,
@@ -377,7 +377,7 @@ export default class SerialState extends VuexModule {
   }
 
   @Action({ rawError: true })
-  async startVVIHR(p_pulse_rate, p_vent_width, p_vent_amplitude, p_vent_sensitivity, p_VRP, p_hysteresis_rate, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
+  async startVVIHR({p_pulse_rate, p_vent_width, p_vent_amplitude, p_vent_sensitivity, p_VRP, p_hysteresis_rate, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor}) {
     sendPacket(12 /* StartVVIHR */, [
       p_pulse_rate,
       p_vent_width,
@@ -401,7 +401,7 @@ export default class SerialState extends VuexModule {
   }
 
   @Action({ rawError: true })
-  async startDOO(p_pulse_rate, p_vent_width, p_vent_amplitude, p_atrial_width, p_atrial_amplitude, p_AV_delay) {
+  async startDOO({p_pulse_rate, p_vent_width, p_vent_amplitude, p_atrial_width, p_atrial_amplitude, p_AV_delay}) {
     sendPacket(13 /* StartDOO */, [
       p_pulse_rate,
       p_vent_width,
@@ -419,7 +419,7 @@ export default class SerialState extends VuexModule {
   }
 
   @Action({ rawError: true })
-  async startDOOR(p_pulse_rate, p_vent_width, p_vent_amplitude, p_atrial_width, p_atrial_amplitude, p_AV_delay, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor) {
+  async startDOOR({p_pulse_rate, p_vent_width, p_vent_amplitude, p_atrial_width, p_atrial_amplitude, p_AV_delay, p_MSR, p_acc_threshold, p_react_time, p_recovery_time, p_response_factor}) {
     sendPacket(14 /* StartDOOR */, [
       p_pulse_rate,
       p_vent_width,

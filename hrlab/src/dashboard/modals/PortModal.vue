@@ -54,6 +54,7 @@ export default {
       const serialNumber = this.serialModule.serialNumber;
       if(serialNumber.length == 8) {
         await this.authModule.setItem({ itemName: 'serialNumber', item: serialNumber });
+        this.serialNumber = serialNumber;
       }
     },
   },
