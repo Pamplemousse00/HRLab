@@ -36,27 +36,17 @@ export default class AuthState extends VuexModule {
   @Action({ rawError: true })
   async setItem(setItemObject) {
     console.log(setItemObject);
-    fs.readFile(`${path}/users.json`, 'utf8' , (err, data) => {
-      console.log('AAAAAAA');
-      if (err) {
-        console.log(err);
-        return;
-      }
-      let jsonData = {};
-      if(data.length > 0) {
-        jsonData = JSON.parse(data);
-      }
-      console.log(jsonData);
-      jsonData[setItemObject.itemName] = setItemObject.item;
-      
-      fs.writeFile(`${path}/users.json`, JSON.stringify(jsonData), (err) => {
-        if (err) {
-          console.log(err);
-          return;
-        }
-        console.log('The file has been saved!');
-      });      
-    });
+    let data = await fs.readFileSync(`${path}/users.json`, 'utf8');
+    console.log('AAAAAAA');
+    let jsonData = {};
+    if(data.length > 0) {
+      jsonData = JSON.parse(data);
+    }
+    console.log(jsonData);
+    jsonData[setItemObject.itemName] = setItemObject.item;
+    
+    await fs.writeFileSync(`${path}/users.json`, JSON.stringify(jsonData));
+    console.log('The file has been saved!');   
     return true;
   }
 
@@ -78,7 +68,6 @@ export default class AuthState extends VuexModule {
       var currentUser = users[await this.getItem('currentUserIndex')];
       return currentUser;
     } else {
-      window.location.href = './login.html';
       return null;
     }
   }
@@ -147,7 +136,5 @@ export default class AuthState extends VuexModule {
   @Action({ rawError: true })
   async logout() {
     await this.setItem({ itemName: 'currentUserIndex', item: null });
-    window.location.href = './login.html';
   }
-
 }
